@@ -1,0 +1,12 @@
+version: "2"
+services:
+  my-shelfie:
+    image: "eclipse-temurin:20-jre-alpine"
+    container_name: my-shelfie
+    # scrive file su directory web
+    volumes:
+      - /executable/my-shelfie:/esegui:ro
+      - /files/my-shelfie:/principale:rw
+    network_mode: host # no port binding needed
+    command: sh -c "apk add --no-cache tzdata && ln -snf /usr/share/zoneinfo/Europe/Rome /etc/localtime && echo Europe/Rome > /etc/timezone && cd /principale && java -Xmx128m -jar /esegui/Server-AM34.jar"
+    restart: always
