@@ -1,0 +1,262 @@
+@startuml
+
+' generated via PlantUML Web Server: http://www.plantuml.com/plantuml/
+
+' "yellow" theme
+skin rose
+
+class it.polimi.ingsw.Server.Model.PersonalGoalCard {
++ {static} int LIMIT
+- int type
+- Optional<ObjectCardType>[][] pattern
++ <<Create>> PersonalGoalCard(int)
+- <<Create>> PersonalGoalCard(int,Optional<ObjectCardType>[][])
+- void declarePattern(int)
++ int getType()
++ Optional<ObjectCardType>[][] getPattern()
++ ObjectCardType getPlainType(int,int)
++ int getOrdinal(int,int)
++ PersonalGoalCard getCopy()
+}
+class it.polimi.ingsw.Server.Model.ObjectCard {
++ {static} int LIMIT
+- {static} int TYPESLIMIT
+- {static} int IMAGESLIMIT
+- ObjectCardType type
+- int image
+~ <<Create>> ObjectCard(List<ObjectCard>)
+~ <<Create>> ObjectCard(ObjectCardType)
++ ObjectCardType getType()
++ int getImage()
+}
+class it.polimi.ingsw.Server.Model.ScoreCard {
+~ int value
++ <<Create>> ScoreCard(int)
++ int getValue()
++ ScoreCard getCopy()
+}
+class it.polimi.ingsw.Server.Model.Board {
++ {static} int BOARD_DIM_X
++ {static} int BOARD_DIM_Y
+- int MINPLAYERS
+- int MAXPLAYERS
+- BoardSpace[][] spaces
+- List<ObjectCard> objectCards
+- Map<ObjectCard,BoardSpace> lastTaken
++ <<Create>> Board(int,List<ObjectCard>)
+- <<Create>> Board(BoardSpace[][],List<ObjectCard>,Map<ObjectCard,BoardSpace>)
+- void spacesDeclaration(int)
++ BoardSpace[][] getSpaces()
++ boolean isSpaceUsable(int,int)
++ ObjectCard getPlainCardFromSpace(int,int)
++ int getCardOrdinalFromSpace(int,int)
++ String getCardImageFromSpace(int,int)
++ List<ObjectCard> boardCards()
+~ boolean resetNeeded()
+- boolean resetEnabled()
+- void reset()
++ boolean valid(List<ObjectCard>)
++ boolean validFromCoordinate(List<Integer>,List<Integer>)
++ List<ObjectCard> getCardsFromCoordinate(List<Integer>,List<Integer>)
++ void takeFromBoard(List<ObjectCard>)
++ List<ObjectCard> takeFromBoardFromCoordinate(List<Integer>,List<Integer>)
++ void restoreLastTaken()
++ Board getCopy()
++ List<ObjectCard> getObjectCards()
+}
+class it.polimi.ingsw.Server.Model.BoardSpace {
+- int x
+- int y
+- boolean usable
+- Optional<Integer> dots
+- Optional<ObjectCard> card
++ <<Create>> BoardSpace(int,int,boolean,Optional<Integer>)
++ int getX()
++ int getY()
++ boolean isUsable()
++ Optional<ObjectCard> getCard()
++ void setCard(Optional<ObjectCard>)
++ ObjectCard getPlainCard()
++ Optional<Integer> getDots()
++ int getPlainDots()
+}
+class it.polimi.ingsw.Server.Controller.GameController {
+- List<String> lobby
+- String identifier
+- Game game
+- Player activePlayer
+- int maxPlayers
+- boolean refreshed
+- Map<ScoreCard,CommonGoalCard> lastTurnScores
++ <<Create>> GameController(String)
++ String getIdentifier()
++ boolean acceptPlayer(String,int)
++ List<String> getLobby()
++ int getMaxPlayers()
++ boolean isGamePrepared()
++ BoardInterface getGameBoard()
++ ShelfInterface getShelf(String)
++ PersonalGoalCardInterface getPersonalGoalCard(String)
++ List<CommonGoalCardInterface> getCommonGoalCards()
++ Stack<ScoreCard> getScoreCardsFromNickname(String)
++ List<String> nicknames()
++ Scoreboard getScoreboard()
++ MoveIntermediateInterface getMoveIntermediate(String)
++ Player getActivePlayer()
+- void nextPlayer()
++ Map<ScoreCard,CommonGoalCard> getLastTurnScores()
++ boolean make(Move)
++ boolean isGameEnded()
++ boolean isGameComplete()
++ Player getPlayerByNickname(String)
++ void refreshEntities()
++ boolean reEnterGame(String)
+}
+class it.polimi.ingsw.Server.Model.Scoreboard {
+- Map<String,Integer> scoreBoard
++ <<Create>> Scoreboard(Map<String,Integer>)
++ Map<String,Integer> getScoreBoard()
+}
+class it.polimi.ingsw.Server.Model.CommonGoalCard {
++ {static} int LIMIT
+- int type
+- String description
+- Stack<ScoreCard> increments
++ <<Create>> CommonGoalCard(int,int)
+- <<Create>> CommonGoalCard(int,String,Stack<ScoreCard>)
++ String getDescription()
++ Stack<ScoreCardInterface> getIncrements()
++ ScoreCard attribute(Shelf)
+- boolean findTypesInColumns(int,int,int,Shelf)
+- boolean findTypesInRows(int,int,int,Shelf)
+- boolean sameTypeGroupFirstCheck(int,int,Shelf)
+- boolean sameTypeGroupSecondCheck(int,int,Shelf)
++ CommonGoalCard getCopy()
++ int getType()
+}
+class it.polimi.ingsw.Server.Model.EndGameCard {
+~ <<Create>> EndGameCard()
+}
+class it.polimi.ingsw.Server.Model.Shelf {
++ {static} int SHELF_DIM_X
++ {static} int SHELF_DIM_Y
+- Optional<ObjectCard>[][] cards
++ <<Create>> Shelf()
+- <<Create>> Shelf(Optional<ObjectCard>[][])
++ List<ObjectCard> shelfCards()
++ Optional<ObjectCard> getCard(int,int)
++ ObjectCard getPlainCard(int,int)
++ int getCardOrdinal(int,int)
++ String getCardImage(int,int)
++ int getCoordinate(ObjectCard,boolean)
++ void placeCard(ObjectCard,int)
++ int evaluatePattern(PersonalGoalCard)
++ int finalEvaluation()
++ boolean isFull()
++ int emptySpacesInColumn(int)
++ Shelf getCopy()
+}
+enum it.polimi.ingsw.Server.Model.ObjectCardType {
++  CATS
++  BOOKS
++  GAMES
++  FRAMES
++  TROPHIES
++  PLANTS
+- int ord
+~ <<Create>> ObjectCardType(int)
++ int getOrd()
+}
+class it.polimi.ingsw.Server.Model.Player {
+- String nickname
+- Stack<ScoreCard> scoreCards
+- Map<ScoreCard,CommonGoalCard> lastAchieved
+- int position
+- int score
+- CommonGoalCard cgCard1
+- CommonGoalCard cgCard2
+- Shelf shelf
+- PersonalGoalCard pgCard
+- boolean inGame
+- boolean achievedCG1
+~ <<Create>> Player(String,PersonalGoalCard,CommonGoalCard,CommonGoalCard,int,Board)
++ <<Create>> Player(String)
++ void setGameParameters(PersonalGoalCard,CommonGoalCard,CommonGoalCard,Board)
++ String getNickname()
++ int getPosition()
++ void setPosition(int)
++ int getScore()
++ Shelf getShelf()
++ PersonalGoalCard getPersonalGoalCard()
++ void updateScore()
++ boolean isInGame()
++ void setOutOfTurn()
++ void firstShelfFull()
++ void refreshEntities(CommonGoalCard,CommonGoalCard)
++ Map<ScoreCard,CommonGoalCard> getLastAchieved()
++ Stack<ScoreCard> getScoreCards()
+}
+class it.polimi.ingsw.Server.Model.Game {
++ int MAX_PLAYERS
+- String identifier
+- Map<Integer,Player> players
+- int maxPlayers
+- List<PersonalGoalCard> personalCards
+- Scoreboard scoreboard
+- Board board
+- int playerCount
+- CommonGoalCard cgCard1
+- CommonGoalCard cgCard2
+- List<ObjectCard> objectCards
+- boolean gameEnded
+- boolean prepared
++ <<Create>> Game(String,int)
++ Board getBoard()
++ int getMaxPlayers()
++ Map<Integer,Player> getPlayers()
++ Player newPlayer(String)
++ Player getPlayerFromNickname(String)
++ ShelfInterface getShelfInterfaceFromNickname(String)
++ PersonalGoalCardInterface getPersonalGoalCardInterfaceFromNickname(String)
++ List<CommonGoalCardInterface> getCommonGoalCards()
++ Shelf getShelfFromNickname(String)
++ Stack<ScoreCard> getScoreCardsFromNickname(String)
++ List<String> nicknames()
++ void prepareGame()
++ boolean isPrepared()
++ boolean checkEndGame(Player)
++ boolean gameComplete()
++ Scoreboard getScoreboard()
++ boolean isGameEnded()
++ void refreshEntities()
+}
+class it.polimi.ingsw.Server.Controller.Move {
+- int column
+- List<ObjectCard> orderedCards
+- List<Integer> x
+- List<Integer> y
+- Board board
+- Shelf shelf
++ <<Create>> Move(int,List<Integer>,List<Integer>,Board,Shelf)
++ void setBoardAndShelf(Board,Shelf)
++ boolean take()
++ void restoreTaken()
++ boolean place()
+}
+
+
+it.polimi.ingsw.Common.PersonalGoalCardInterface <|.. it.polimi.ingsw.Server.Model.PersonalGoalCard
+java.rmi.server.UnicastRemoteObject <|-- it.polimi.ingsw.Server.Model.PersonalGoalCard
+it.polimi.ingsw.Common.ObjectCardInterface <|.. it.polimi.ingsw.Server.Model.ObjectCard
+it.polimi.ingsw.Common.ScoreCardInterface <|.. it.polimi.ingsw.Server.Model.ScoreCard
+java.rmi.server.UnicastRemoteObject <|-- it.polimi.ingsw.Server.Model.ScoreCard
+it.polimi.ingsw.Common.BoardInterface <|.. it.polimi.ingsw.Server.Model.Board
+java.rmi.server.UnicastRemoteObject <|-- it.polimi.ingsw.Server.Model.Board
+it.polimi.ingsw.Common.ScoreBoardInterface <|.. it.polimi.ingsw.Server.Model.Scoreboard
+java.rmi.server.UnicastRemoteObject <|-- it.polimi.ingsw.Server.Model.Scoreboard
+it.polimi.ingsw.Common.CommonGoalCardInterface <|.. it.polimi.ingsw.Server.Model.CommonGoalCard
+java.rmi.server.UnicastRemoteObject <|-- it.polimi.ingsw.Server.Model.CommonGoalCard
+it.polimi.ingsw.Server.Model.ScoreCard <|-- it.polimi.ingsw.Server.Model.EndGameCard
+it.polimi.ingsw.Common.ShelfInterface <|.. it.polimi.ingsw.Server.Model.Shelf
+java.rmi.server.UnicastRemoteObject <|-- it.polimi.ingsw.Server.Model.Shelf
+@enduml

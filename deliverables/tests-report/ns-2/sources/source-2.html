@@ -1,0 +1,213 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > BoardSpace</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.Server.Model</a>
+</div>
+
+<h1>Coverage Summary for Class: BoardSpace (it.polimi.ingsw.Server.Model)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">BoardSpace</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (9/9)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (14/14)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.Server.Model;
+&nbsp;
+&nbsp;import com.google.gson.annotations.Expose;
+&nbsp;
+&nbsp;import java.util.Optional;
+&nbsp;
+&nbsp;/**
+&nbsp; * Board Spaces
+&nbsp; */
+&nbsp;public class BoardSpace {
+&nbsp;    /**
+&nbsp;     * Coordinate
+&nbsp;     */
+&nbsp;    @Expose
+&nbsp;    private final int x;
+&nbsp;    /**
+&nbsp;     * Coordinate
+&nbsp;     */
+&nbsp;    @Expose
+&nbsp;    private final int y;
+&nbsp;    /**
+&nbsp;     * Usability of the space in the board/current game
+&nbsp;     */
+&nbsp;    @Expose
+&nbsp;    private final boolean usable;
+&nbsp;    /**
+&nbsp;     * Number of (eventual) dots in the space
+&nbsp;     */
+&nbsp;    @Expose
+&nbsp;    private final Optional&lt;Integer&gt; dots;
+&nbsp;    /**
+&nbsp;     * (eventual) Object Card in the space
+&nbsp;     */
+&nbsp;    @Expose
+&nbsp;    private Optional&lt;ObjectCard&gt; card;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * BoardSpace class constructor
+&nbsp;     *
+&nbsp;     * @param x      coordinate
+&nbsp;     * @param y      coordinate
+&nbsp;     * @param usable usability of a space in both absolute and players-dependent criteria
+&nbsp;     * @param dots   number of dots on that space (based on a number of players)
+&nbsp;     */
+<b class="fc">&nbsp;    public BoardSpace(int x, int y, boolean usable, Optional&lt;Integer&gt; dots) {</b>
+<b class="fc">&nbsp;        this.x = x;</b>
+<b class="fc">&nbsp;        this.y = y;</b>
+<b class="fc">&nbsp;        this.usable = usable;</b>
+<b class="fc">&nbsp;        this.dots = dots;</b>
+<b class="fc">&nbsp;        this.card = Optional.empty();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * @return x coordinate
+&nbsp;     */
+&nbsp;    public int getX() {
+<b class="fc">&nbsp;        return x;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * @return y coordinate
+&nbsp;     */
+&nbsp;    public int getY() {
+<b class="fc">&nbsp;        return y;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * @return usability of the space
+&nbsp;     */
+&nbsp;    public boolean isUsable() {
+<b class="fc">&nbsp;        return usable;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * @return card in the space (as an Optional)
+&nbsp;     */
+&nbsp;    public Optional&lt;ObjectCard&gt; getCard() {
+<b class="fc">&nbsp;        return card;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Sets the card in the space
+&nbsp;     *
+&nbsp;     * @param card the card
+&nbsp;     */
+&nbsp;    public void setCard(Optional&lt;ObjectCard&gt; card) {
+<b class="fc">&nbsp;        this.card = card;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * @return card in the space (as a plain Nullable type)
+&nbsp;     */
+&nbsp;    public ObjectCard getPlainCard() {
+<b class="fc">&nbsp;        return card.orElse(null);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * @return number of dots in a space (as Optional)
+&nbsp;     */
+&nbsp;    public Optional&lt;Integer&gt; getDots() {
+<b class="fc">&nbsp;        return dots;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * @return number of dots in a space (as a plain Nullable type)
+&nbsp;     */
+&nbsp;    public int getPlainDots() {
+<b class="fc">&nbsp;        return dots.orElse(null);</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2023-05-30 20:39</div>
+</div>
+</body>
+</html>

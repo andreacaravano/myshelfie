@@ -1,0 +1,58 @@
+@startuml
+
+' generated via PlantUML Web Server: http://www.plantuml.com/plantuml/
+
+' "yellow" theme
+skin rose
+
+class it.polimi.ingsw.Server.Model.PersonalGoalCard {
+}
+class it.polimi.ingsw.Server.Model.ObjectCard {
+}
+class it.polimi.ingsw.Server.Model.ScoreCard {
+}
+class it.polimi.ingsw.Server.Model.Board {
+}
+class it.polimi.ingsw.Server.Model.BoardSpace {
+}
+class it.polimi.ingsw.Server.Controller.GameController {
+}
+class it.polimi.ingsw.Server.Model.Scoreboard {
+}
+class it.polimi.ingsw.Server.Model.CommonGoalCard {
+}
+class it.polimi.ingsw.Server.Model.EndGameCard {
+}
+class it.polimi.ingsw.Server.Model.Shelf {
+}
+enum it.polimi.ingsw.Server.Model.ObjectCardType {
++  CATS
++  BOOKS
++  GAMES
++  FRAMES
++  TROPHIES
++  PLANTS
+}
+class it.polimi.ingsw.Server.Model.Player {
+}
+class it.polimi.ingsw.Server.Model.Game {
+}
+class it.polimi.ingsw.Server.Controller.Move {
+}
+
+
+it.polimi.ingsw.Common.PersonalGoalCardInterface <|.. it.polimi.ingsw.Server.Model.PersonalGoalCard
+java.rmi.server.UnicastRemoteObject <|-- it.polimi.ingsw.Server.Model.PersonalGoalCard
+it.polimi.ingsw.Common.ObjectCardInterface <|.. it.polimi.ingsw.Server.Model.ObjectCard
+it.polimi.ingsw.Common.ScoreCardInterface <|.. it.polimi.ingsw.Server.Model.ScoreCard
+java.rmi.server.UnicastRemoteObject <|-- it.polimi.ingsw.Server.Model.ScoreCard
+it.polimi.ingsw.Common.BoardInterface <|.. it.polimi.ingsw.Server.Model.Board
+java.rmi.server.UnicastRemoteObject <|-- it.polimi.ingsw.Server.Model.Board
+it.polimi.ingsw.Common.ScoreBoardInterface <|.. it.polimi.ingsw.Server.Model.Scoreboard
+java.rmi.server.UnicastRemoteObject <|-- it.polimi.ingsw.Server.Model.Scoreboard
+it.polimi.ingsw.Common.CommonGoalCardInterface <|.. it.polimi.ingsw.Server.Model.CommonGoalCard
+java.rmi.server.UnicastRemoteObject <|-- it.polimi.ingsw.Server.Model.CommonGoalCard
+it.polimi.ingsw.Server.Model.ScoreCard <|-- it.polimi.ingsw.Server.Model.EndGameCard
+it.polimi.ingsw.Common.ShelfInterface <|.. it.polimi.ingsw.Server.Model.Shelf
+java.rmi.server.UnicastRemoteObject <|-- it.polimi.ingsw.Server.Model.Shelf
+@enduml

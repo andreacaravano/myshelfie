@@ -1,0 +1,93 @@
+%
+%                  Politecnico di Milano
+%
+%          Gruppo: AM34
+%            A.A.: 2022/2023
+%
+% Ultima modifica: 02/05/2023
+%
+%     Descrizione: Prova Finale (Progetto) di Ingegneria del Software - A.A. 2022/23
+%                  Peer review n. 2
+%
+
+\documentclass[a4paper,11pt]{article} % tipo di documento
+\usepackage[T1]{fontenc} % codifica dei font
+\usepackage[utf8]{inputenc} % lettere accentate da tastiera
+\usepackage[english,italian]{babel} % lingua del documento
+\usepackage{lipsum} % genera testo fittizio
+\usepackage{url} % per scrivere gli indirizzi Internet e/o di riferimento nella pagina
+
+\usepackage[hidelinks]{hyperref} % per modificare il comportamento dei collegamenti ipertestuali (+ leva colore attorno)
+
+\usepackage[margin=0.7in]{geometry} % margine di pagina
+
+\usepackage{graphicx} % per inserire immagini
+
+\usepackage{fancyhdr} % per gestione intestazione e piè di pagina
+
+\hypersetup{ % metadati di titolo e autore nel PDF
+    pdftitle={Prova Finale di Ingegneria del Software - A.A. 2022/23},
+    pdfauthor={Gruppo AM34}
+}
+
+\setlength{\parindent}{0pt} % rimuove l'indentazione del testo
+
+\begin{document}
+    \pagestyle{fancy}
+    \fancyhead{}\fancyfoot{}
+    \fancyhead[L]{\textbf{Prova Finale di Ingegneria del Software - A.A. 2022/23}}
+    \fancyhead[R]{Gruppo AM34}
+    \fancyfoot[C]{\thepage}
+
+    \author{Andrea Caravano \and Biagio Cancelliere \and Alessandro Cavallo \and Allegra Chiavacci}
+    \title{\textbf{\Large{Prova Finale di Ingegneria del Software - A.A. 2022/23\\Peer-review n. 2}}}
+    \maketitle
+
+    Valutazione della specifica del protocollo di comunicazione del gruppo \textbf{AM43}
+
+
+    \section{Lati positivi}\label{sec:lati-positivi}
+    \begin{itemize}
+        \item Durante la fase di gestione del turno, risulta molto efficiente la costruzione
+        di un messaggio preposto al solo aggiornamento del modello, che è infatti compatto.
+        \item È prevista la gestione di una lobby di ammissione al gioco e un meccanismo comune di
+        notifica per il raggiungimento degli obiettivi della partita.
+    \end{itemize}
+
+
+    \section{Lati negativi}\label{sec:lati-negativi}
+    \begin{itemize}
+        \item L'approccio seguito per la progettazione dei messaggi non è valido per
+        entrambi i protocolli.
+
+        In RMI, infatti, non vi è uno scambio di messaggi che sono invece sostituiti da chiamate
+        di metodo, facendo uso di paradigmi che permettano di informare opportunamente i client
+        dell'evoluzione del gioco (ad esempio come il binding degli oggetti del modello e/o metodi
+        di callback).
+        \item Non è chiara l'associazione tra un client e la propria partita. In tutti gli scambi,
+        infatti, è previsto di informare il server sulla propria identità, anche in fase di disconnessione.
+
+        Durante una partita, un client può fingersi un qualunque altro giocatore di qualunque
+        altra partita e danneggiarne il flusso, essendo per giunta previsto un meccanismo di
+        autorizzazione alla disconessione.
+        \item Non sono specificate astrazioni per la gestione della ricezione dei messaggi
+        della chat e di eventi eccezionali (quale appunto la disconnessione imprevista di un client).
+        \item I diagrammi UML del modello e controller non trovano collegamento pratico con la specifica
+        del protocollo di comunicazione.
+        Quest'ultima, infatti, risulta spesso opaca nei confronti delle relazioni con il modello
+        e il controller di gioco.
+        \item Complessivamente, il documento ci è risultato poco curato e di difficile comprensione.
+    \end{itemize}
+
+
+    \section{Confronto tra le architetture}\label{sec:confronto-tra-le-architetture}
+    \begin{itemize}
+        \item Nella nostra architettura abbiamo previsto paradigmi di gestione degli scambi
+        logicamente equivalenti ma distinti in maniera naturale sulla base del tipo di protocollo
+        alla base della comunicazione.
+        \item Abbiamo scelto di distinguere partite differenti attraverso identificativi della
+        partita (in formato stringa).
+        Un client può quindi scegliere la partita a cui accedere in fase di login, invece di essere
+        ammesso alla prima disponibile (che è comunque una scelta attrettanto valida).
+    \end{itemize}
+\end{document}

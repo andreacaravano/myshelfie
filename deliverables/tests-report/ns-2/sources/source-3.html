@@ -1,0 +1,638 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > CommonGoalCard</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.Server.Model</a>
+</div>
+
+<h1>Coverage Summary for Class: CommonGoalCard (it.polimi.ingsw.Server.Model)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">CommonGoalCard</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (11/11)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (236/236)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.Server.Model;
+&nbsp;
+&nbsp;import com.google.gson.annotations.Expose;
+&nbsp;import it.polimi.ingsw.Common.CommonGoalCardInterface;
+&nbsp;import it.polimi.ingsw.Common.ScoreCardInterface;
+&nbsp;
+&nbsp;import java.rmi.RemoteException;
+&nbsp;import java.rmi.server.UnicastRemoteObject;
+&nbsp;import java.util.Arrays;
+&nbsp;import java.util.Stack;
+&nbsp;
+&nbsp;/**
+&nbsp; * This class represents the Common Goal cards, thanks to which players may grant points,
+&nbsp; * achieving a specific pattern
+&nbsp; */
+&nbsp;public class CommonGoalCard extends UnicastRemoteObject implements CommonGoalCardInterface {
+&nbsp;    /**
+&nbsp;     * Limit of Common Goal Cards.
+&nbsp;     */
+&nbsp;    public static final int LIMIT = 12;
+&nbsp;    /**
+&nbsp;     * This attribute stands for the id of the Common Goal Card, which permits to
+&nbsp;     * identify the different Common Goal Cards.
+&nbsp;     */
+&nbsp;    @Expose
+&nbsp;    private final int type;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * This attribute stands for a textual description of the pattern that the player has to achieve, in order
+&nbsp;     * to gain points.
+&nbsp;     */
+&nbsp;    @Expose
+&nbsp;    private String description;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * This attribute stands for the deck of ScoreCards on each Common Goal Card, put there
+&nbsp;     * from the lowest to the highest value. The size of the Stack varies according to the number of
+&nbsp;     * players.
+&nbsp;     */
+&nbsp;    @Expose
+&nbsp;    private Stack&lt;ScoreCard&gt; increments;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * CommonGoalCard&#39;s constructor.
+&nbsp;     * New ScoreCards with a value of 2,4,6 or 8 points are pushed into the Stack increments
+&nbsp;     * according to the playerCount, from the lowest to the highest score value.
+&nbsp;     *
+&nbsp;     * @param type        it indicates the id of the Common Goal Card, in order to identify the pattern
+&nbsp;     * @param playerCount (2nd parameter) it represents the number of players, according to which
+&nbsp;     *                    a different number of ScoreCards are pushed into the Stack
+&nbsp;     * @throws Exception if parameters are invalid
+&nbsp;     */
+<b class="fc">&nbsp;    public CommonGoalCard(int type, int playerCount) throws Exception {</b>
+<b class="fc">&nbsp;        this.type = type;</b>
+<b class="fc">&nbsp;        if (type &lt;= 0 || type &gt; LIMIT)</b>
+<b class="fc">&nbsp;            throw new Exception();</b>
+&nbsp;
+<b class="fc">&nbsp;        increments = new Stack&lt;&gt;();</b>
+&nbsp;
+<b class="fc">&nbsp;        if (playerCount &lt; 2 || playerCount &gt; 4)</b>
+<b class="fc">&nbsp;            throw new Exception();</b>
+&nbsp;
+<b class="fc">&nbsp;        if (playerCount == 4) {</b>
+<b class="fc">&nbsp;            increments.push(new ScoreCard(2));</b>
+&nbsp;        }
+<b class="fc">&nbsp;        increments.push(new ScoreCard(4));</b>
+&nbsp;
+<b class="fc">&nbsp;        if (playerCount &gt;= 3) {</b>
+<b class="fc">&nbsp;            increments.push(new ScoreCard(6));</b>
+&nbsp;        }
+<b class="fc">&nbsp;        increments.push(new ScoreCard(8));</b>
+&nbsp;
+<b class="fc">&nbsp;        switch (type) {</b>
+<b class="fc">&nbsp;            case 1 -&gt; description = &quot;Two groups each containing 4 cards of the same type in a 2x2 square. &quot; +</b>
+&nbsp;                    &quot;The cards of one square must be of the same type of those of the other square.&quot;;
+<b class="fc">&nbsp;            case 2 -&gt; description = &quot;Two columns each formed by 6 different types of cards.&quot;;</b>
+<b class="fc">&nbsp;            case 3 -&gt; description = &quot;Four groups each containing 4 cards of the same type (in line or in column). &quot; +</b>
+&nbsp;                    &quot;The cards of a group can be different from those of another group.&quot;;
+<b class="fc">&nbsp;            case 4 -&gt; description = &quot;Six pairs of cards of the same type. &quot; +</b>
+&nbsp;                    &quot;The cards of a group can be different from those of another group.&quot;;
+<b class="fc">&nbsp;            case 5 -&gt; description = &quot;Three columns each formed by 6 cards of maximum three different types. &quot; +</b>
+&nbsp;                    &quot;One column can show a different combination of another column.&quot;;
+<b class="fc">&nbsp;            case 6 -&gt; description = &quot;Two lines each formed by 5 different types of cards. &quot; +</b>
+&nbsp;                    &quot;One line can show a different combination of the other line.&quot;;
+<b class="fc">&nbsp;            case 7 -&gt; description = &quot;Four lines each formed by five cards of maximum three different types. &quot; +</b>
+&nbsp;                    &quot;One line can show a different combination of the other line.&quot;;
+<b class="fc">&nbsp;            case 8 -&gt; description = &quot;Four cards of the same type in the four corners of the shelf.&quot;;</b>
+<b class="fc">&nbsp;            case 9 -&gt; description = &quot;Eight cards of the same type. There&#39;s no restriction about the position of &quot; +</b>
+&nbsp;                    &quot;these cards.&quot;;
+<b class="fc">&nbsp;            case 10 -&gt; description = &quot;Five cards of the same type forming an X.&quot;;</b>
+<b class="fc">&nbsp;            case 11 -&gt; description = &quot;Five cards of the same type forming a diagonal.&quot;;</b>
+<b class="fc">&nbsp;            case 12 -&gt; description = &quot;Five columns of increasing or decreasing height. Starting from the first &quot; +</b>
+&nbsp;                    &quot;column on the left or on the right, each next column must be made of exactly one more &quot; +
+&nbsp;                    &quot;card. Cards can be of any type.&quot;;
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Related to Game&#39;s refresh strategy
+&nbsp;     *
+&nbsp;     * @throws RemoteException related to RMI
+&nbsp;     */
+<b class="fc">&nbsp;    private CommonGoalCard(int type, String description, Stack&lt;ScoreCard&gt; increments) throws RemoteException {</b>
+<b class="fc">&nbsp;        this.type = type;</b>
+<b class="fc">&nbsp;        this.description = description;</b>
+<b class="fc">&nbsp;        this.increments = new Stack&lt;&gt;();</b>
+<b class="fc">&nbsp;        for (ScoreCard sc : increments) {</b>
+<b class="fc">&nbsp;            this.increments.add(new ScoreCard(sc.getValue()));</b>
+<b class="fc">&nbsp;        }</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * This method returns the textual description of the pattern that the player has to achieve, in order
+&nbsp;     * to gain points.
+&nbsp;     *
+&nbsp;     * @return String: textual description of the pattern
+&nbsp;     */
+&nbsp;    public String getDescription() {
+<b class="fc">&nbsp;        return description;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * @return Score Increments stack
+&nbsp;     */
+&nbsp;    public Stack&lt;ScoreCardInterface&gt; getIncrements() {
+<b class="fc">&nbsp;        Stack&lt;ScoreCardInterface&gt; ret = new Stack&lt;&gt;();</b>
+<b class="fc">&nbsp;        ret.addAll(increments);</b>
+<b class="fc">&nbsp;        return ret;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * This method calculates how many points the player has scored, by achieving the pattern which
+&nbsp;     * is displayed in the Common Goal Card.
+&nbsp;     *
+&nbsp;     * @param shelf player&#39;s shelf
+&nbsp;     * @return score granted by the player, if the pattern displayed by the card has been achieved
+&nbsp;     * @throws Exception if coordinates are invalid
+&nbsp;     */
+&nbsp;    public ScoreCard attribute(Shelf shelf) throws Exception {
+<b class="fc">&nbsp;        boolean found = false;</b>
+<b class="fc">&nbsp;        switch (type) {</b>
+&nbsp;            case 1 -&gt; {
+<b class="fc">&nbsp;                boolean[][] alrInAPattern = new boolean[Shelf.SHELF_DIM_X][Shelf.SHELF_DIM_Y];</b>
+&nbsp;                //Pattern: two groups each containing 4 ObjectCards of the same type in a 2x2 square
+<b class="fc">&nbsp;                for (ObjectCardType t : ObjectCardType.values()) {</b>
+<b class="fc">&nbsp;                    int count = 0;</b>
+<b class="fc">&nbsp;                    for (int i = 0; i &lt; Shelf.SHELF_DIM_X - 1; i++) {</b>
+<b class="fc">&nbsp;                        for (int j = 0; j &lt; Shelf.SHELF_DIM_Y - 1; j++) {</b>
+<b class="fc">&nbsp;                            if (shelf.getCard(i, j).isPresent() &amp;&amp;</b>
+<b class="fc">&nbsp;                                    shelf.getCard(i, j).get().getType().equals(t) &amp;&amp; !alrInAPattern[i][j]) {</b>
+<b class="fc">&nbsp;                                if (shelf.getCard(i + 1, j).isPresent() &amp;&amp;</b>
+<b class="fc">&nbsp;                                        shelf.getCard(i + 1, j).get().getType().equals(t)</b>
+&nbsp;                                        &amp;&amp; !alrInAPattern[i + 1][j]) {
+&nbsp;                                    //check adjacency in the following line
+<b class="fc">&nbsp;                                    if (shelf.getCard(i, j + 1).isPresent() &amp;&amp;</b>
+<b class="fc">&nbsp;                                            shelf.getCard(i, j + 1).get().getType().equals(t)</b>
+&nbsp;                                            &amp;&amp; !alrInAPattern[i][j + 1]) {
+<b class="fc">&nbsp;                                        if (shelf.getCard(i + 1, j + 1).isPresent() &amp;&amp;</b>
+<b class="fc">&nbsp;                                                shelf.getCard(i + 1, j + 1).get().getType().equals(t)</b>
+&nbsp;                                                &amp;&amp; !alrInAPattern[i + 1][j + 1]) {
+<b class="fc">&nbsp;                                            alrInAPattern[i][j] = true;</b>
+<b class="fc">&nbsp;                                            alrInAPattern[i][j + 1] = true;</b>
+<b class="fc">&nbsp;                                            alrInAPattern[i + 1][j] = true;</b>
+<b class="fc">&nbsp;                                            alrInAPattern[i + 1][j + 1] = true;</b>
+<b class="fc">&nbsp;                                            count++;</b>
+&nbsp;                                        }
+&nbsp;                                    }
+&nbsp;                                }
+&nbsp;                            }
+&nbsp;                        }
+&nbsp;                    }
+<b class="fc">&nbsp;                    if (count &gt;= 2) {</b>
+<b class="fc">&nbsp;                        found = true;</b>
+&nbsp;                    }
+&nbsp;                }
+<b class="fc">&nbsp;            }</b>
+&nbsp;            case 2 -&gt; {
+&nbsp;                //two columns each formed by 6 different types of ObjectCards
+<b class="fc">&nbsp;                found = findTypesInColumns(6, 6, 2, shelf);</b>
+<b class="fc">&nbsp;            }</b>
+&nbsp;            case 3 -&gt; {
+<b class="fc">&nbsp;                if (sameTypeGroupFirstCheck(4, 4, shelf)) {</b>
+<b class="fc">&nbsp;                    found = true;</b>
+&nbsp;                } else {
+<b class="fc">&nbsp;                    found = sameTypeGroupSecondCheck(4, 4, shelf);</b>
+&nbsp;                }
+&nbsp;
+<b class="fc">&nbsp;            }</b>
+&nbsp;            case 4 -&gt; {
+&nbsp;                //six pairs of cards of the same type (pairs may have different types)
+<b class="fc">&nbsp;                if (sameTypeGroupFirstCheck(2, 6, shelf)) {</b>
+<b class="fc">&nbsp;                    found = true;</b>
+&nbsp;                } else {
+<b class="fc">&nbsp;                    found = sameTypeGroupSecondCheck(2, 6, shelf);</b>
+&nbsp;                }
+<b class="fc">&nbsp;            }</b>
+&nbsp;            case 5 -&gt; {
+&nbsp;                //3 columns of 6 cards (max 3 different ObjectCards)
+<b class="fc">&nbsp;                found = findTypesInColumns(3, 1, 3, shelf);</b>
+<b class="fc">&nbsp;            }</b>
+&nbsp;            case 6 -&gt; { //two rows with five cards of five different types
+<b class="fc">&nbsp;                found = findTypesInRows(5, 5, 2, shelf);</b>
+<b class="fc">&nbsp;            }</b>
+&nbsp;            case 7 -&gt; { //four rows with five cards of (from one to three) different types
+<b class="fc">&nbsp;                found = findTypesInRows(3, 1, 4, shelf);</b>
+<b class="fc">&nbsp;            }</b>
+&nbsp;            case 8 -&gt; {
+&nbsp;                //four cards of the same type in the four corners of the shelf
+<b class="fc">&nbsp;                if (shelf.getCard(0, 0).isPresent() &amp;&amp;</b>
+<b class="fc">&nbsp;                        shelf.getCard(0, Shelf.SHELF_DIM_Y - 1).isPresent() &amp;&amp;</b>
+<b class="fc">&nbsp;                        shelf.getCard(Shelf.SHELF_DIM_X - 1, Shelf.SHELF_DIM_Y - 1).isPresent() &amp;&amp;</b>
+<b class="fc">&nbsp;                        shelf.getCard(Shelf.SHELF_DIM_X - 1, 0).isPresent()) {</b>
+<b class="fc">&nbsp;                    if (shelf.getCard(0, 0).get().getType().equals(shelf.getCard(0, Shelf.SHELF_DIM_Y - 1).get().getType())</b>
+<b class="fc">&nbsp;                            &amp;&amp; shelf.getCard(0, 0).get().getType().equals(shelf.getCard(Shelf.SHELF_DIM_X - 1, 0).get().getType()) &amp;&amp;</b>
+<b class="fc">&nbsp;                            shelf.getCard(0, 0).get().getType().equals(shelf.getCard(Shelf.SHELF_DIM_X - 1, Shelf.SHELF_DIM_Y - 1).get().getType())) {</b>
+<b class="fc">&nbsp;                        found = true;</b>
+&nbsp;                    }
+&nbsp;                }
+&nbsp;            }
+&nbsp;            case 9 -&gt; {
+&nbsp;                //eight cards of the same type
+<b class="fc">&nbsp;                int[] typeCounter = new int[ObjectCardType.values().length];</b>
+<b class="fc">&nbsp;                Arrays.fill(typeCounter, 0);</b>
+<b class="fc">&nbsp;                for (int i = 0; i &lt; Shelf.SHELF_DIM_X; i++) {</b>
+<b class="fc">&nbsp;                    for (int j = 0; j &lt; Shelf.SHELF_DIM_Y; j++) {</b>
+<b class="fc">&nbsp;                        if (shelf.getCard(i, j).isPresent()) {</b>
+<b class="fc">&nbsp;                            typeCounter[shelf.getCard(i, j).get().getType().ordinal()]++;</b>
+&nbsp;                        }
+&nbsp;                    }
+&nbsp;                }
+<b class="fc">&nbsp;                for (int i = 0; i &lt; ObjectCardType.values().length; i++) {</b>
+<b class="fc">&nbsp;                    if (typeCounter[i] &gt;= 8) {</b>
+<b class="fc">&nbsp;                        found = true;</b>
+<b class="fc">&nbsp;                        break;</b>
+&nbsp;                    }
+&nbsp;                }
+<b class="fc">&nbsp;            }</b>
+&nbsp;            case 10 -&gt; {
+<b class="fc">&nbsp;                for (int i = 1; i &lt; Shelf.SHELF_DIM_X - 1; i++) {</b>
+<b class="fc">&nbsp;                    for (int j = 1; j &lt; Shelf.SHELF_DIM_Y - 1; j++) {</b>
+<b class="fc">&nbsp;                        if (!found) {</b>
+&nbsp;                            //cards are present
+<b class="fc">&nbsp;                            if (shelf.getCard(i, j).isPresent() &amp;&amp; shelf.getCard(i - 1, j + 1).isPresent()</b>
+<b class="fc">&nbsp;                                    &amp;&amp; shelf.getCard(i - 1, j - 1).isPresent() &amp;&amp; shelf.getCard(i + 1, j - 1).isPresent() &amp;&amp;</b>
+<b class="fc">&nbsp;                                    shelf.getCard(i + 1, j + 1).isPresent() &amp;&amp; shelf.getCard(i, j - 1).isPresent() &amp;&amp;</b>
+<b class="fc">&nbsp;                                    shelf.getCard(i + 1, j).isPresent() &amp;&amp; shelf.getCard(i, j + 1).isPresent()) {</b>
+&nbsp;                                //cards of the same type create an X
+<b class="fc">&nbsp;                                if (shelf.getCard(i, j).get().getType().equals(shelf.getCard(i - 1, j + 1).get().getType())</b>
+<b class="fc">&nbsp;                                        &amp;&amp; shelf.getCard(i, j).get().getType().equals(shelf.getCard(i - 1, j - 1).get().getType()) &amp;&amp;</b>
+<b class="fc">&nbsp;                                        shelf.getCard(i, j).get().getType().equals(shelf.getCard(i + 1, j - 1).get().getType()) &amp;&amp;</b>
+<b class="fc">&nbsp;                                        shelf.getCard(i, j).get().getType().equals(shelf.getCard(i + 1, j + 1).get().getType()</b>
+&nbsp;                                        )) {
+&nbsp;                                    //the other 4 cards are of a different type (they don&#39;t create a square)
+&nbsp;                                    /*if (!shelf.getCard(i, j).get().getType().equals(shelf.getCard(i, j - 1).get().getType()) &amp;&amp;
+&nbsp;                                            !shelf.getCard(i, j).get().getType().equals(shelf.getCard(i, j + 1).get().getType())
+&nbsp;                                            &amp;&amp; !shelf.getCard(i, j).get().getType().equals(shelf.getCard(i + 1, j).get().getType()) &amp;&amp;
+&nbsp;                                            (shelf.getCard(i - 1, j).isEmpty() ||
+&nbsp;                                                    !shelf.getCard(i, j).get().getType().equals(shelf.getCard(i - 1, j).get().getType()))) {*/
+<b class="fc">&nbsp;                                    found = true;</b>
+&nbsp;                                    // }
+&nbsp;                                }
+&nbsp;                            }
+&nbsp;                        }
+&nbsp;                    }
+&nbsp;                }
+<b class="fc">&nbsp;            }</b>
+&nbsp;            case 11 -&gt; {
+<b class="fc">&nbsp;                boolean skipDiag1 = false;</b>
+<b class="fc">&nbsp;                boolean skipDiag2 = false;</b>
+<b class="fc">&nbsp;                boolean skipDiag3 = false;</b>
+<b class="fc">&nbsp;                boolean skipDiag4 = false;</b>
+<b class="fc">&nbsp;                for (int i = 0; i &lt; Shelf.SHELF_DIM_X - 2; i++) {</b>
+<b class="fc">&nbsp;                    for (int j = 0; j &lt; Shelf.SHELF_DIM_Y - 1; j++) {</b>
+<b class="fc">&nbsp;                        if (i == j) {</b>
+<b class="fc">&nbsp;                            if (!(!skipDiag1 &amp;&amp; shelf.getCard(i, j).isPresent() &amp;&amp; shelf.getCard(i + 1, j + 1).isPresent() &amp;&amp;</b>
+<b class="fc">&nbsp;                                    shelf.getCard(i, j).get().getType().equals(shelf.getCard(i + 1, j + 1).get().getType()))) {</b>
+<b class="fc">&nbsp;                                skipDiag1 = true;</b>
+&nbsp;                            }
+<b class="fc">&nbsp;                            if (!(!skipDiag2 &amp;&amp; shelf.getCard(i, Shelf.SHELF_DIM_Y - j - 1).isPresent() &amp;&amp;</b>
+<b class="fc">&nbsp;                                    shelf.getCard(i + 1, Shelf.SHELF_DIM_Y - j - 2).isPresent() &amp;&amp;</b>
+<b class="fc">&nbsp;                                    shelf.getCard(i, Shelf.SHELF_DIM_Y - j - 1).get().getType().equals(shelf.getCard(i + 1, Shelf.SHELF_DIM_Y - j - 2).get().getType()))</b>
+&nbsp;                            ) {
+<b class="fc">&nbsp;                                skipDiag2 = true;</b>
+&nbsp;                            }
+<b class="fc">&nbsp;                            if (!(!skipDiag3 &amp;&amp; shelf.getCard(i + 1, j).isPresent() &amp;&amp;</b>
+<b class="fc">&nbsp;                                    shelf.getCard(i + 2, j + 1).isPresent() &amp;&amp;</b>
+<b class="fc">&nbsp;                                    shelf.getCard(i + 1, j).get().getType().equals(shelf.getCard(i + 2, j + 1).get().getType()))) {</b>
+<b class="fc">&nbsp;                                skipDiag3 = true;</b>
+&nbsp;                            }
+<b class="fc">&nbsp;                            if (!(!skipDiag4 &amp;&amp; shelf.getCard(Shelf.SHELF_DIM_X - i - 1, j).isPresent() &amp;&amp;</b>
+<b class="fc">&nbsp;                                    shelf.getCard(Shelf.SHELF_DIM_X - i - 2, j + 1).isPresent() &amp;&amp;</b>
+<b class="fc">&nbsp;                                    shelf.getCard(Shelf.SHELF_DIM_X - i - 1, j).get().getType().equals(shelf.getCard(Shelf.SHELF_DIM_X - i - 2, j + 1).get().getType()))) {</b>
+<b class="fc">&nbsp;                                skipDiag4 = true;</b>
+&nbsp;                            }
+&nbsp;                        }
+&nbsp;                    }
+&nbsp;                }
+<b class="fc">&nbsp;                if (!skipDiag1 || !skipDiag2 || !skipDiag3 || !skipDiag4) {</b>
+<b class="fc">&nbsp;                    found = true;</b>
+&nbsp;                }
+<b class="fc">&nbsp;            }</b>
+&nbsp;            case 12 -&gt; {
+<b class="fc">&nbsp;                boolean skipDiag1 = false;</b>
+<b class="fc">&nbsp;                boolean skipDiag2 = false;</b>
+<b class="fc">&nbsp;                boolean skipDiag3 = false;</b>
+<b class="fc">&nbsp;                boolean skipDiag4 = false;</b>
+<b class="fc">&nbsp;                for (int i = 0; i &lt; Shelf.SHELF_DIM_X; i++) {</b>
+<b class="fc">&nbsp;                    for (int j = 0; j &lt; Shelf.SHELF_DIM_Y; j++) {</b>
+<b class="fc">&nbsp;                        if (!(!skipDiag1 &amp;&amp; ((i &gt;= j &amp;&amp; shelf.getCard(i, j).isPresent()) || (j &gt; i &amp;&amp; shelf.getCard(i, j).isEmpty())))) {</b>
+<b class="fc">&nbsp;                            skipDiag1 = true;</b>
+&nbsp;                        }
+<b class="fc">&nbsp;                        if (!(!skipDiag2 &amp;&amp; ((i &gt; j &amp;&amp; shelf.getCard(i, j).isPresent()) || (j &gt;= i &amp;&amp; shelf.getCard(i, j).isEmpty())))) {</b>
+<b class="fc">&nbsp;                            skipDiag2 = true;</b>
+&nbsp;                        }
+<b class="fc">&nbsp;                        if (!(!skipDiag3 &amp;&amp; ((i &gt;= j &amp;&amp; shelf.getCard(i, Shelf.SHELF_DIM_Y - j - 1).isPresent()) ||</b>
+<b class="fc">&nbsp;                                (j &gt; i &amp;&amp; shelf.getCard(i, Shelf.SHELF_DIM_Y - j - 1).isEmpty())))) {</b>
+<b class="fc">&nbsp;                            skipDiag3 = true;</b>
+&nbsp;                        }
+<b class="fc">&nbsp;                        if (!(!skipDiag4 &amp;&amp; ((i &gt; j &amp;&amp; shelf.getCard(i, Shelf.SHELF_DIM_Y - j - 1).isPresent()) ||</b>
+<b class="fc">&nbsp;                                (j &gt;= i &amp;&amp; shelf.getCard(i, Shelf.SHELF_DIM_Y - j - 1).isEmpty())))) {</b>
+<b class="fc">&nbsp;                            skipDiag4 = true;</b>
+&nbsp;                        }
+&nbsp;                    }
+&nbsp;                }
+<b class="fc">&nbsp;                if (!skipDiag1 || !skipDiag2 || !skipDiag3 || !skipDiag4) {</b>
+<b class="fc">&nbsp;                    found = true;</b>
+&nbsp;                }
+&nbsp;            }
+&nbsp;        }
+&nbsp;
+<b class="fc">&nbsp;        if (found &amp;&amp; !increments.isEmpty()) {</b>
+<b class="fc">&nbsp;            return increments.pop();</b>
+&nbsp;        }
+&nbsp;
+<b class="fc">&nbsp;        return new ScoreCard(0);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * This method is a support method to attribute() for cards 2 and 5.
+&nbsp;     *
+&nbsp;     * @param diffTypesMax max number of different types in a column
+&nbsp;     * @param diffTypesMin min number of different types in a column
+&nbsp;     * @param numOfPattern num of pattern
+&nbsp;     * @param shelf        player&#39;s shelf
+&nbsp;     * @return true if the pattern has been found, false otherwise
+&nbsp;     * @throws Exception invalid coordinates
+&nbsp;     */
+&nbsp;    private boolean findTypesInColumns(int diffTypesMax, int diffTypesMin, int numOfPattern, Shelf shelf) throws Exception {
+<b class="fc">&nbsp;        int patternCount = 0;</b>
+<b class="fc">&nbsp;        ObjectCardType[] checkTypes = new ObjectCardType[Shelf.SHELF_DIM_X];</b>
+<b class="fc">&nbsp;        Arrays.fill(checkTypes, null);</b>
+<b class="fc">&nbsp;        for (int j = 0; j &lt; Shelf.SHELF_DIM_Y; j++) {</b>
+<b class="fc">&nbsp;            if (shelf.getCard(0, j).isPresent()) { //checks the presence of 6 elements in the column</b>
+<b class="fc">&nbsp;                for (int i = 0; i &lt; Shelf.SHELF_DIM_X; i++) {</b>
+<b class="fc">&nbsp;                    if (shelf.getCard(i, j).isPresent()) {</b>
+<b class="fc">&nbsp;                        checkTypes[i] = shelf.getCard(i, j).get().getType();</b>
+&nbsp;                    }
+&nbsp;                }
+<b class="fc">&nbsp;                if ((Arrays.stream(checkTypes).distinct().count() &lt;= diffTypesMax &amp;&amp; Arrays.stream(checkTypes).distinct().count() &gt;= diffTypesMin)) {</b>
+<b class="fc">&nbsp;                    patternCount++;</b>
+&nbsp;                }
+<b class="fc">&nbsp;                Arrays.fill(checkTypes, null);</b>
+&nbsp;            }
+&nbsp;        }
+<b class="fc">&nbsp;        return patternCount &gt;= numOfPattern;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * This method is a support method to attribute() for cards 6 and 7.
+&nbsp;     *
+&nbsp;     * @param diffTypesMax max number of different types in a line
+&nbsp;     * @param diffTypesMin min number of different types in a column
+&nbsp;     * @param numOfPattern num of pattern
+&nbsp;     * @param shelf        player&#39;s shelf
+&nbsp;     * @return true if the pattern has been found, false otherwise
+&nbsp;     * @throws Exception invalid coordinates
+&nbsp;     */
+&nbsp;    private boolean findTypesInRows(int diffTypesMax, int diffTypesMin, int numOfPattern, Shelf shelf) throws Exception {
+<b class="fc">&nbsp;        int patternCount = 0;</b>
+<b class="fc">&nbsp;        ObjectCardType[] checkTypes = new ObjectCardType[Shelf.SHELF_DIM_Y];</b>
+<b class="fc">&nbsp;        Arrays.fill(checkTypes, null);</b>
+<b class="fc">&nbsp;        for (int i = 0; i &lt; Shelf.SHELF_DIM_X; i++) {</b>
+<b class="fc">&nbsp;            int cardCounter = 0;</b>
+<b class="fc">&nbsp;            for (int j = 0; j &lt; Shelf.SHELF_DIM_Y; j++) {</b>
+<b class="fc">&nbsp;                if (shelf.getCard(i, j).isPresent()) {</b>
+<b class="fc">&nbsp;                    checkTypes[j] = shelf.getCard(i, j).get().getType();</b>
+<b class="fc">&nbsp;                    cardCounter++;</b>
+&nbsp;                }
+&nbsp;            }
+<b class="fc">&nbsp;            if (cardCounter == Shelf.SHELF_DIM_Y &amp;&amp; Arrays.stream(checkTypes).distinct().count() &gt;= diffTypesMin &amp;&amp;</b>
+<b class="fc">&nbsp;                    Arrays.stream(checkTypes).distinct().count() &lt;= diffTypesMax) {</b>
+&nbsp;
+<b class="fc">&nbsp;                patternCount++;</b>
+&nbsp;            }
+<b class="fc">&nbsp;            Arrays.fill(checkTypes, null);</b>
+&nbsp;        }
+<b class="fc">&nbsp;        return patternCount &gt;= numOfPattern;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * This method is a support method to attribute() for cards 3 and 4. It checks the
+&nbsp;     * presence of groups in lines and then in columns.
+&nbsp;     *
+&nbsp;     * @param dimOfGroup dimension of each group
+&nbsp;     * @param numPattern number of pattern
+&nbsp;     * @param shelf      player&#39;s shelf
+&nbsp;     * @return true if the pattern has been found, false otherwise
+&nbsp;     * @throws Exception invalid coordinates
+&nbsp;     */
+&nbsp;    private boolean sameTypeGroupFirstCheck(int dimOfGroup, int numPattern, Shelf shelf) throws Exception {
+<b class="fc">&nbsp;        boolean[][] alrInAPattern = new boolean[Shelf.SHELF_DIM_X][Shelf.SHELF_DIM_Y];</b>
+&nbsp;        ObjectCardType firstType;
+<b class="fc">&nbsp;        int foundPattern = 0; //counts how many patterns have been found</b>
+<b class="fc">&nbsp;        for (int i = 0; i &lt;= Shelf.SHELF_DIM_X - dimOfGroup; i++) {</b>
+<b class="fc">&nbsp;            for (int j = 0; j &lt; Shelf.SHELF_DIM_Y; j++) {</b>
+<b class="fc">&nbsp;                int sameType = 0; //counts how many adjacent cards have the same type</b>
+<b class="fc">&nbsp;                if (shelf.getCard(i, j).isPresent() &amp;&amp; !alrInAPattern[i][j]) { //checks adjacency in a column</b>
+<b class="fc">&nbsp;                    firstType = shelf.getCard(i, j).get().getType();</b>
+<b class="fc">&nbsp;                    for (int k = 1; k &lt; dimOfGroup; k++) {</b>
+<b class="fc">&nbsp;                        if (shelf.getCard(i + k, j).isPresent() &amp;&amp; shelf.getCard(i + k, j).get().getType().equals(firstType)</b>
+&nbsp;                                &amp;&amp; !alrInAPattern[i + k][j]) {
+<b class="fc">&nbsp;                            sameType++;</b>
+&nbsp;                        }
+&nbsp;                    }
+<b class="fc">&nbsp;                    if (sameType == dimOfGroup - 1) {</b>
+<b class="fc">&nbsp;                        foundPattern++;</b>
+<b class="fc">&nbsp;                        for (int k = 0; k &lt; dimOfGroup; k++) {</b>
+<b class="fc">&nbsp;                            alrInAPattern[i + k][j] = true;</b>
+&nbsp;                        }
+&nbsp;                    }
+&nbsp;                }
+&nbsp;            }
+&nbsp;        }
+<b class="fc">&nbsp;        for (int i = 0; i &lt; Shelf.SHELF_DIM_X; i++) {</b>
+<b class="fc">&nbsp;            for (int j = 0; j &lt;= Shelf.SHELF_DIM_Y - dimOfGroup; j++) {</b>
+<b class="fc">&nbsp;                int sameType = 0; //counts how many adjacent cards have the same type</b>
+<b class="fc">&nbsp;                if (shelf.getCard(i, j).isPresent() &amp;&amp; !alrInAPattern[i][j]) {</b>
+<b class="fc">&nbsp;                    firstType = shelf.getCard(i, j).get().getType();</b>
+<b class="fc">&nbsp;                    for (int k = 1; k &lt; dimOfGroup; k++) {</b>
+<b class="fc">&nbsp;                        if (shelf.getCard(i, j + k).isPresent() &amp;&amp; shelf.getCard(i, j + k).get().getType().equals(firstType)</b>
+&nbsp;                                &amp;&amp; !alrInAPattern[i][j + k]) {
+<b class="fc">&nbsp;                            sameType++;</b>
+&nbsp;                        }
+&nbsp;                    }
+<b class="fc">&nbsp;                    if (sameType == dimOfGroup - 1) {</b>
+<b class="fc">&nbsp;                        foundPattern++;</b>
+<b class="fc">&nbsp;                        for (int k = 0; k &lt; dimOfGroup; k++) {</b>
+<b class="fc">&nbsp;                            alrInAPattern[i][j + k] = true;</b>
+&nbsp;                        }
+&nbsp;                    }
+&nbsp;                }
+&nbsp;            }
+&nbsp;        }
+<b class="fc">&nbsp;        return foundPattern &gt;= numPattern;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * This method is a support method to attribute() for cards 3 and 4. It checks the
+&nbsp;     * presence of groups in columns and then in lines.
+&nbsp;     *
+&nbsp;     * @param dimOfGroup dimension of each group
+&nbsp;     * @param numPattern number of patterns
+&nbsp;     * @param shelf      player&#39;s shelf
+&nbsp;     * @return true if the pattern has been found, false otherwise
+&nbsp;     * @throws Exception invalid coordinates
+&nbsp;     */
+&nbsp;    private boolean sameTypeGroupSecondCheck(int dimOfGroup, int numPattern, Shelf shelf) throws Exception {
+<b class="fc">&nbsp;        boolean[][] alrInAPattern = new boolean[Shelf.SHELF_DIM_X][Shelf.SHELF_DIM_Y];</b>
+&nbsp;        ObjectCardType firstType;
+<b class="fc">&nbsp;        int foundPattern = 0; //counts how many patterns have been found</b>
+<b class="fc">&nbsp;        for (int i = 0; i &lt; Shelf.SHELF_DIM_X; i++) {</b>
+<b class="fc">&nbsp;            for (int j = 0; j &lt;= Shelf.SHELF_DIM_Y - dimOfGroup; j++) {</b>
+<b class="fc">&nbsp;                int sameType = 0; //counts how many adjacent cards have the same type</b>
+<b class="fc">&nbsp;                if (shelf.getCard(i, j).isPresent() &amp;&amp; !alrInAPattern[i][j]) {</b>
+<b class="fc">&nbsp;                    firstType = shelf.getCard(i, j).get().getType();</b>
+<b class="fc">&nbsp;                    for (int k = 1; k &lt; dimOfGroup; k++) {</b>
+<b class="fc">&nbsp;                        if (shelf.getCard(i, j + k).isPresent() &amp;&amp; shelf.getCard(i, j + k).get().getType().equals(firstType)</b>
+&nbsp;                                &amp;&amp; !alrInAPattern[i][j + k]) {
+<b class="fc">&nbsp;                            sameType++;</b>
+&nbsp;                        }
+&nbsp;                    }
+<b class="fc">&nbsp;                    if (sameType == dimOfGroup - 1) {</b>
+<b class="fc">&nbsp;                        foundPattern++;</b>
+<b class="fc">&nbsp;                        for (int k = 0; k &lt; dimOfGroup; k++) {</b>
+<b class="fc">&nbsp;                            alrInAPattern[i][j + k] = true;</b>
+&nbsp;                        }
+&nbsp;                    }
+&nbsp;                }
+&nbsp;            }
+&nbsp;        }
+<b class="fc">&nbsp;        for (int i = 0; i &lt;= Shelf.SHELF_DIM_X - dimOfGroup; i++) {</b>
+<b class="fc">&nbsp;            for (int j = 0; j &lt; Shelf.SHELF_DIM_Y; j++) {</b>
+<b class="fc">&nbsp;                int sameType = 0; //counts how many adjacent cards have the same type</b>
+<b class="fc">&nbsp;                if (shelf.getCard(i, j).isPresent() &amp;&amp; !alrInAPattern[i][j]) { //checks adjacency in a column</b>
+<b class="fc">&nbsp;                    firstType = shelf.getCard(i, j).get().getType();</b>
+<b class="fc">&nbsp;                    for (int k = 1; k &lt; dimOfGroup; k++) {</b>
+<b class="fc">&nbsp;                        if (shelf.getCard(i + k, j).isPresent() &amp;&amp; shelf.getCard(i + k, j).get().getType().equals(firstType)</b>
+&nbsp;                                &amp;&amp; !alrInAPattern[i + k][j]) {
+<b class="fc">&nbsp;                            sameType++;</b>
+&nbsp;                        }
+&nbsp;                    }
+<b class="fc">&nbsp;                    if (sameType == dimOfGroup - 1) {</b>
+<b class="fc">&nbsp;                        foundPattern++;</b>
+<b class="fc">&nbsp;                        for (int k = 0; k &lt; dimOfGroup; k++) {</b>
+<b class="fc">&nbsp;                            alrInAPattern[i + k][j] = true;</b>
+&nbsp;                        }
+&nbsp;                    }
+&nbsp;                }
+&nbsp;            }
+&nbsp;        }
+<b class="fc">&nbsp;        return foundPattern &gt;= numPattern;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Refreshed copy, after server reload from file
+&nbsp;     *
+&nbsp;     * @return new copy of the object
+&nbsp;     * @throws RemoteException related to RMI
+&nbsp;     */
+&nbsp;    public CommonGoalCard getCopy() throws RemoteException {
+<b class="fc">&nbsp;        return new CommonGoalCard(this.type, this.description, this.increments);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Common Goal Card&#39;s type (ordinal)
+&nbsp;     *
+&nbsp;     * @return type
+&nbsp;     * @throws RemoteException related to RMI
+&nbsp;     */
+&nbsp;    public int getType() throws RemoteException {
+<b class="fc">&nbsp;        return type;</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2023-05-30 20:39</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,481 @@
+@startuml
+
+' generated via PlantUML Web Server: http://www.plantuml.com/plantuml/
+
+' "yellow" theme
+skin rose
+
+class it.polimi.ingsw.Client.ClientModel.ClientBoard {
+- ClientBoardSpace[][] spaces
++ boolean isSpaceUsable(int,int)
++ int getCardOrdinalFromSpace(int,int)
++ String getCardImageFromSpace(int,int)
+}
+class it.polimi.ingsw.Client.ClientModel.ClientCommonGoalCard {
+- int type
+- String description
+- Stack<ClientScoreCard> increments
++ <<Create>> ClientCommonGoalCard(int,String)
++ int getType()
++ String getDescription()
++ Stack<ScoreCardInterface> getIncrements()
+}
+interface it.polimi.ingsw.Common.ShelfInterface {
++ {static} int SHELF_DIM_X
++ {static} int SHELF_DIM_Y
++ int getCardOrdinal(int,int)
++ String getCardImage(int,int)
++ boolean isFull()
+}
+interface it.polimi.ingsw.Common.ScoreBoardInterface {
++ Map<String,Integer> getScoreBoard()
+}
+interface it.polimi.ingsw.Common.RMIControllerInterface {
++ boolean identifierExists(String)
++ boolean nicknameExists(String,String)
++ boolean createGame(String,ClientStatusInterface)
++ boolean acceptPlayer(String,String,int)
++ boolean reEnterGame(String,String)
+}
+interface it.polimi.ingsw.Common.ClientStatusInterface {
++ Status getStatus()
++ boolean setStatus(Status)
++ String getIdentifier()
++ void setIdentifier(String)
++ String getNickname()
++ void setNickname(String)
++ void setGameParameters(BoardInterface,ShelfInterface,MoveIntermediateInterface)
++ BoardInterface getBoard()
++ ShelfInterface getShelf()
++ PersonalGoalCardInterface getPersonalGoalCard()
++ List<CommonGoalCardInterface> getCommonGoalCard()
++ void setCards(PersonalGoalCardInterface,List<CommonGoalCardInterface>)
++ MoveIntermediateInterface getMoveIntermediate()
++ String getCurrentPlayer()
++ void setCurrentPlayer(String)
++ ScoreBoardInterface getScoreBoard()
++ void setScoreBoard(ScoreBoardInterface)
++ Map<ScoreCardInterface,CommonGoalCardInterface> getLastTurnScores()
++ void setLastTurnScores(Map<ScoreCardInterface,CommonGoalCardInterface>)
++ Stack<ScoreCardInterface> getScoreCards()
++ void setScoreCards(Stack<ScoreCardInterface>)
++ void lifeline()
+}
+class it.polimi.ingsw.Client.ClientModel.ClientStatus {
+- RMIClientInterface client
+- Status status
+- String identifier
+- String nickname
+- BoardInterface board
+- ShelfInterface shelf
+- PersonalGoalCardInterface pgCard
+- List<CommonGoalCardInterface> cgCard
+- MoveIntermediateInterface mi
+- String currentPlayer
+- ScoreBoardInterface sci
+- Map<ScoreCardInterface,CommonGoalCardInterface> lts
+- Stack<ScoreCardInterface> sc
++ <<Create>> ClientStatus(RMIClientInterface)
++ Status getStatus()
++ boolean setStatus(Status)
++ String getIdentifier()
++ void setIdentifier(String)
++ String getNickname()
++ void setNickname(String)
++ void setGameParameters(BoardInterface,ShelfInterface,MoveIntermediateInterface)
++ BoardInterface getBoard()
++ ShelfInterface getShelf()
++ PersonalGoalCardInterface getPersonalGoalCard()
++ List<CommonGoalCardInterface> getCommonGoalCard()
++ void setCards(PersonalGoalCardInterface,List<CommonGoalCardInterface>)
++ MoveIntermediateInterface getMoveIntermediate()
++ String getCurrentPlayer()
++ void setCurrentPlayer(String)
++ ScoreBoardInterface getScoreBoard()
++ void setScoreBoard(ScoreBoardInterface)
++ Map<ScoreCardInterface,CommonGoalCardInterface> getLastTurnScores()
++ void setLastTurnScores(Map<ScoreCardInterface,CommonGoalCardInterface>)
++ Stack<ScoreCardInterface> getScoreCards()
++ void setScoreCards(Stack<ScoreCardInterface>)
++ void lifeline()
+}
+class it.polimi.ingsw.Server.SocketServer {
+- {static} int countParameters
+- {static} ExecutorService pool
+- {static} Map<PrintWriter,GameController> printWriterToGameController
+- {static} Map<Socket,GameController> socketToGameController
+- {static} int portNumber
+- {static} Map<String,GameController> identifierToController
+- {static} Map<GameController,Semaphore> controllerToSemaphore
+- {static} Map<GameController,Object> controllerToCommuter
+- {static} Map<GameController,Object> controllerToLobbyCommuter
+- {static} Gson gson_2
+- ExclusionStrategy serializationStrategy
++ <<Create>> SocketServer(Map<String,GameController>,Map<GameController,Semaphore>,Map<GameController,Object>,Map<GameController,Object>)
++ {static} void main(String[])
+- {static} void communication(Socket)
+- {static} void updateClientStatus(GameController,String,PrintWriter,Gson)
+- {static} void makeMove(GameController,PrintWriter,Gson,AtomicBoolean,ProducerConsumerLock,AtomicReference<String>,Gson)
+- {static} boolean admissionResult(GameController,String,PrintWriter,int,Gson)
+- {static} int requestNumOfPlayer(BufferedReader,PrintWriter,Gson)
+- {static} String receiveIdentifier(BufferedReader,PrintWriter,Gson)
+- {static} void readClientLine(BufferedReader,PrintWriter,AtomicBoolean,ProducerConsumerLock,AtomicReference<String>,AtomicReference<SocketKeepAlive>)
++ {static} String requestNickname(BufferedReader,PrintWriter,String,Gson)
++ {static} void endGameHandler(GameController,boolean,boolean)
+}
+class it.polimi.ingsw.Client.View.MultipleView {
+- {static} int completePrintBound
++ {static} void automaticPrint(BoardInterface,ShelfInterface,PersonalGoalCardInterface,PrintWriter)
+- {static} void sequentialPrint(BoardInterface,ShelfInterface,PersonalGoalCardInterface,PrintWriter)
+- {static} void completePrint(BoardInterface,ShelfInterface,PersonalGoalCardInterface,PrintWriter)
+}
+class it.polimi.ingsw.Server.RMIServer {
+- {static} int countParameters
+- {static} ExecutorService executors
+- {static} int PORT
+- {static} Map<String,GameController> identifierToController
+- {static} Map<GameController,Semaphore> controllerToSemaphore
+- {static} Map<GameController,Object> controllerToCommuter
+- {static} Map<GameController,Object> controllerToLobbyCommuter
+- {static} Map<ClientStatusInterface,GameController> clientStatusToController
+- ExclusionStrategy serializationStrategy
+- Gson gson
+- StatusIntermediate intermediate
+- RMIController serverController
++ <<Create>> RMIServer(Map<String,GameController>,Map<GameController,Semaphore>,Map<GameController,Object>,Map<GameController,Object>)
++ {static} void main(String[])
+- {static} void sendScoreBoard(ClientStatusInterface,GameController)
++ {static} void endGameHandler(GameController,boolean)
++ void manage()
+- GameController loginCheck(ClientStatusInterface,String,String)
+- AdmissionResult admission(ClientStatusInterface,String,GameController)
+- void turnManagement(ClientStatusInterface,String,String,GameController,AdmissionResult)
+}
+interface it.polimi.ingsw.Common.ObjectCardInterface {
++ {static} int getOrdinal(char)
++ {static} char getChar(int)
++ {static} String getColoredSequence(int)
+}
+class it.polimi.ingsw.Client.ClientModel.ClientMove {
+- int column
+- List<Integer> x
+- List<Integer> y
++ <<Create>> ClientMove(int,List<Integer>,List<Integer>)
+}
+class it.polimi.ingsw.Client.SocketClient {
+- {static} int KA_FREQUENCY
+- {static} int countParameters
+- {static} PrintWriter terminalOutput
+- {static} BufferedReader terminalInput
+- {static} TerminalAbstraction ta
+- {static} ExecutorService executors
+- {static} ScheduledExecutorService scheduledExecutors
+- {static} String serverName
+- {static} int portNumber
+- {static} boolean useGUI
+- {static} boolean firstTime
+- {static} OutputAbstraction oa
++ {static} void main(String[])
+- {static} void communication(Socket)
+- {static} void readServerLine(BufferedReader,ProducerConsumerLock,AtomicReference<String>)
++ {static} void login(BufferedReader,PrintWriter)
++ {static} boolean turnManagement(ProducerConsumerLock,AtomicReference<String>,AtomicReference<String>,ClientCommonGoalCard,ClientCommonGoalCard,boolean,AtomicInteger)
++ {static} void makeMove(PrintWriter,ProducerConsumerLock,AtomicReference<String>)
+}
+enum it.polimi.ingsw.Client.ClientModel.ClientObjectCardType {
++  CATS
++  BOOKS
++  GAMES
++  FRAMES
++  TROPHIES
++  PLANTS
+}
+class it.polimi.ingsw.Client.GUI {
+- {static} int loginRESX
+- {static} int loginRESY
+- {static} double egcRES
+- {static} ArrayList<ArrayList<ImageView>> shelfColumnsCells
+- {static} ArrayList<ArrayList<CellDataModel>> boardRowsCells
+- {static} ArrayList<ArrayList<Integer>> positions
+- {static} Text yourTurnText
++ {static} ClassicLock allowExitMenu
++ {static} ClassicLock allowLogin
++ {static} ClassicLock allowMove
++ {static} ClassicLock allowScoreboard
++ {static} ClassicLock allowIdentifier
+- {static} Stage mainStage
+- {static} Scene mainMenuScene
+- {static} Scene loginScene
+- {static} Scene creditsScene
+- {static} Scene gameScene
+- {static} Scene scoreboardScene
+- {static} Scene loadingScene
+- {static} ImageView secondCGCAvailablePointsImageView
+- {static} ImageView firstCGCAvailablePointsImageView
+- {static} ImageView firstCGCPImageView
+- {static} ImageView secondCGCPImageView
+- {static} ImageView pgcImageView
+- {static} ImageView firstCGCImageView
+- {static} ImageView secondCGCImageView
+- {static} AnchorPane sbRootPane
+- {static} AnchorPane rootPane
+- {static} Text nicknameText
+- {static} Text numPlayer
+- {static} TextArea numPlayerTextArea
+- {static} ArrayList<CellDataModel> selectedCells
+- {static} boolean isMyTurn
+- {static} int selectedColumn
+- {static} List<Integer> x
+- {static} List<Integer> y
+- {static} String gameID
+- {static} String numOfPlayers
+- {static} String nickname
+- {static} boolean newMatch
+- int GameRESX
+- int GameRESY
+- int mainMenuRESX
+- int mainMenuRESY
+- double borderDimension
+- BorderWidths borderWidths
+- double boardRES
+- double shelfRES
+- double cgcRESX
+- double cgcRESY
+- double pgcRES
+- double cgcPointsRES
+- double scRES
+- ArrayList<VBox> shelfColumns
+- int shelfCellDim
+- ArrayList<HBox> boardRows
+- int boardCellDim
++ {static} void buildEndGameCard()
++ {static} void resetSelection()
++ {static} void setNewMatch(boolean)
++ {static} void buildScoreBoard(Map<String,Integer>)
+- {static} void scoreboardButtonEvent(Button)
+- {static} void buildLoading(AnchorPane)
++ {static} void errorMessage(String)
++ {static} void errorMessageConfirm(String)
++ {static} void infoMessage(String)
++ {static} void updateBoard(BoardInterface)
++ {static} void updateShelf(ShelfInterface)
++ {static} void updatePersonalGoalCard(PersonalGoalCardInterface)
++ {static} void updateCommonGoalCards(CommonGoalCardInterface,CommonGoalCardInterface)
++ {static} void updateCGCScoredPoints(ArrayList<Integer>)
++ {static} void setScene(Scenes)
++ {static} String getGameID()
++ {static} String getNumOfPlayers()
++ {static} String getNickname()
++ {static} int getSelectedColumn()
++ {static} List<Integer> getX()
++ {static} List<Integer> getY()
++ {static} void setMyTurn(boolean)
++ {static} void setNicknameText(String)
++ {static} void main(String[])
++ void start(Stage)
+- void buildBoard()
+- void buildShelf()
+- void buildCommonGoalCards()
+- void buildPersonalGoalCard()
+- void buildCommonGoalCardsPointCards()
+- void buildFirstCGCAvailablePoints()
+- void buildSecondCGCAvailablePoints()
+- void buildGameButtons()
+- void buildNickname()
+- void buildShelfGrid()
+- void buildBoardGrid()
+- void buildBoardPositions()
+- void buildRowsCells()
+- void buildColumCells()
+- void boardCellEvents(CellDataModel)
+- void shelfGridEvents(VBox,VBox,VBox,VBox,VBox)
+- void gameButtonsEvents(Button)
+- void buildMenu(AnchorPane)
+- void buildLogin(AnchorPane)
+- void buildCredits(AnchorPane)
+- void creditsButtonEvent(Button)
+- void loginButtonEvent(Button,Button,Button,TextArea,TextArea)
+- void mainMenuButtonsEvents(Button,Button,Button)
+- boolean checkLoginInputs(String,String)
+- boolean checkLoginID(String)
+}
+interface it.polimi.ingsw.Common.StatusIntermediateInterface {
++ void setIntermediate(ClientStatusInterface)
+}
+interface it.polimi.ingsw.Common.MoveIntermediateInterface {
++ void setParameters(List<Integer>,List<Integer>,int)
++ boolean make()
+}
+interface it.polimi.ingsw.Common.CommonGoalCardInterface {
++ {static} int LIMIT
++ String getDescription()
++ int getType()
++ Stack<ScoreCardInterface> getIncrements()
+}
+class it.polimi.ingsw.Client.ClientModel.ClientScoreCard {
+~ int value
++ int getValue()
+}
+class it.polimi.ingsw.Server.ServerManager {
+- {static} Map<String,GameController> identifierToController
+- {static} Map<GameController,Semaphore> controllerToSemaphore
+- {static} Map<GameController,Object> controllerToCommuter
+- {static} Map<GameController,Object> controllerToLobbyCommuter
+- {static} ExecutorService executor
+- {static} int countParameters
+- {static} SimpleDateFormat dateFormatter
+- {static} Logger logFile
+- {static} FileHandler FH
++ {static} void main(String[])
+- {static} void createLog()
+- {static} void manageLog()
++ {static} void writeWarning(String)
++ {static} void writeInfo(String)
+- {static} void loadPersistentGames()
+- {static} void SocketServer(String[])
+- {static} void RMIServer(String[])
+}
+class it.polimi.ingsw.Client.RMIClient {
+- {static} int countParameters
+- {static} PrintWriter terminalOutput
+- {static} BufferedReader terminalInput
+- {static} TerminalAbstraction ta
+- {static} ExecutorService executors
+- {static} int PORT
+- {static} String serverName
+- {static} boolean useGUI
+- {static} OutputAbstraction oa
+- ClientStatus cs
+- RMIControllerInterface controller
+- boolean firstTime
++ <<Create>> RMIClient(String[])
++ {static} void main(String[])
++ boolean evolve()
+- boolean login()
+- boolean formulateMove()
+- boolean notYourTurn()
+- boolean forcedGameEnd()
+- boolean lastTurn()
+- boolean finalScoreBoard()
+- boolean achievementsUpdate()
+}
+class it.polimi.ingsw.Server.Controller.MoveIntermediate {
+- Board b
+- Shelf s
+- Player p
+- GameController gc
+- List<Integer> x
+- List<Integer> y
+- int column
++ <<Create>> MoveIntermediate(Board,Shelf,GameController,Player)
++ void setParameters(List<Integer>,List<Integer>,int)
++ boolean make()
+}
+interface it.polimi.ingsw.Common.ScoreCardInterface {
++ int getValue()
+}
+class it.polimi.ingsw.Client.ClientModel.ClientObjectCard {
+- ClientObjectCardType type
+- int image
++ ClientObjectCardType getType()
++ int getImage()
+}
+class it.polimi.ingsw.Client.ClientModel.ClientShelf {
+- Optional<ClientObjectCard>[][] cards
++ int getCardOrdinal(int,int)
++ String getCardImage(int,int)
++ boolean isFull()
+}
+class it.polimi.ingsw.Client.ClientModel.ClientPersonalGoalCard {
+- int type
+- Optional<ClientObjectCardType>[][] pattern
++ int getType()
++ int getOrdinal(int,int)
+}
+class it.polimi.ingsw.Client.ClientModel.ClientBoardSpace {
+- int x
+- int y
+- boolean usable
+- Optional<Integer> dots
+- Optional<ClientObjectCard> card
++ <<Create>> ClientBoardSpace(int,int,boolean,Optional<Integer>)
++ boolean isUsable()
++ Optional<ClientObjectCard> getCard()
+}
+class it.polimi.ingsw.Client.ClientModel.ClientScoreboard {
+- Map<String,Integer> scoreBoard
++ Map<String,Integer> getScoreBoard()
+}
+interface it.polimi.ingsw.Common.BoardInterface {
++ {static} int BOARD_DIM_X
++ {static} int BOARD_DIM_Y
++ boolean isSpaceUsable(int,int)
++ int getCardOrdinalFromSpace(int,int)
++ String getCardImageFromSpace(int,int)
+}
+interface it.polimi.ingsw.Common.PersonalGoalCardInterface {
++ {static} int LIMIT
++ int getType()
++ int getOrdinal(int,int)
+}
+enum it.polimi.ingsw.Common.Status {
++  EOS
++  Sending_Identifier
++  Request_NumberOfPlayers
++  Response_NumberOfPlayers
++  Request_Nickname
++  Response_Nickname
++  Accepted_Request
++  Denied_Request
++  NotYourTurn
++  YourTurn
++  Move_Request
++  SuccessfulMove
++  FailedMove
++  SendingBoard
++  SendingShelf
++  SendingPersonalGoalCard
++  SendingCommonGoalCardSpecification
++  AchievementUpdate
++  PlayerScoreCards
++  LastTurn
++  MoveAllowed
++  MoveNotAllowed
++  GameEnded
++  FinalScoreboard
++  ForcedGameEnd
++  KeepAlive
++  KATimeout
++  InvalidStatus
++  Error
+~ String description
+~ <<Create>> Status(String)
++ String getDescription()
+}
+
+
+it.polimi.ingsw.Common.BoardInterface <|.. it.polimi.ingsw.Client.ClientModel.ClientBoard
+it.polimi.ingsw.Common.CommonGoalCardInterface <|.. it.polimi.ingsw.Client.ClientModel.ClientCommonGoalCard
+java.rmi.Remote <|-- it.polimi.ingsw.Common.ShelfInterface
+java.rmi.Remote <|-- it.polimi.ingsw.Common.ScoreBoardInterface
+java.rmi.Remote <|-- it.polimi.ingsw.Common.RMIControllerInterface
+java.rmi.Remote <|-- it.polimi.ingsw.Common.ClientStatusInterface
+it.polimi.ingsw.Client.ClientModel.ClientStatusInterface <|.. it.polimi.ingsw.Client.ClientModel.ClientStatus
+java.rmi.server.UnicastRemoteObject <|-- it.polimi.ingsw.Client.ClientModel.ClientStatus
+java.rmi.Remote <|-- it.polimi.ingsw.Common.ObjectCardInterface
+javafx.application.Application <|-- it.polimi.ingsw.Client.GUI
+java.rmi.Remote <|-- it.polimi.ingsw.Common.StatusIntermediateInterface
+java.rmi.Remote <|-- it.polimi.ingsw.Common.MoveIntermediateInterface
+java.rmi.Remote <|-- it.polimi.ingsw.Common.CommonGoalCardInterface
+it.polimi.ingsw.Common.ScoreCardInterface <|.. it.polimi.ingsw.Client.ClientModel.ClientScoreCard
+it.polimi.ingsw.Client.RMIClientInterface <|.. it.polimi.ingsw.Client.RMIClient
+it.polimi.ingsw.Common.MoveIntermediateInterface <|.. it.polimi.ingsw.Server.Controller.MoveIntermediate
+java.rmi.server.UnicastRemoteObject <|-- it.polimi.ingsw.Server.Controller.MoveIntermediate
+java.rmi.Remote <|-- it.polimi.ingsw.Common.ScoreCardInterface
+it.polimi.ingsw.Common.ObjectCardInterface <|.. it.polimi.ingsw.Client.ClientModel.ClientObjectCard
+it.polimi.ingsw.Common.ShelfInterface <|.. it.polimi.ingsw.Client.ClientModel.ClientShelf
+it.polimi.ingsw.Common.PersonalGoalCardInterface <|.. it.polimi.ingsw.Client.ClientModel.ClientPersonalGoalCard
+it.polimi.ingsw.Common.ScoreBoardInterface <|.. it.polimi.ingsw.Client.ClientModel.ClientScoreboard
+java.rmi.Remote <|-- it.polimi.ingsw.Common.BoardInterface
+java.rmi.Remote <|-- it.polimi.ingsw.Common.PersonalGoalCardInterface
+@enduml

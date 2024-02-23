@@ -1,0 +1,195 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > ObjectCard</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.Server.Model</a>
+</div>
+
+<h1>Coverage Summary for Class: ObjectCard (it.polimi.ingsw.Server.Model)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">ObjectCard</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (5/5)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    96%
+  </span>
+  <span class="absValue">
+    (24/25)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.Server.Model;
+&nbsp;
+&nbsp;import com.google.gson.annotations.Expose;
+&nbsp;import it.polimi.ingsw.Common.ObjectCardInterface;
+&nbsp;
+&nbsp;import java.rmi.RemoteException;
+&nbsp;import java.util.ArrayList;
+&nbsp;import java.util.List;
+&nbsp;import java.util.Random;
+&nbsp;
+&nbsp;/**
+&nbsp; * This class represents all the ObjectCards&#39; definition methods
+&nbsp; */
+&nbsp;public class ObjectCard implements ObjectCardInterface {
+&nbsp;    /**
+&nbsp;     * Maximum amount of cards that can be extracted, used for validation in Board reset methods
+&nbsp;     * LIMIT = Number of Object Cards Types (detected dynamically), multiplied for 22 (based on rulebook, total number of cards for type)
+&nbsp;     */
+<b class="fc">&nbsp;    public static final int LIMIT = (ObjectCardType.values().length) * 22;</b>
+&nbsp;    private static final int TYPESLIMIT = 6;
+&nbsp;    private static final int IMAGESLIMIT = 3;
+&nbsp;    /**
+&nbsp;     * Card&#39;s type
+&nbsp;     */
+&nbsp;    @Expose
+&nbsp;    private ObjectCardType type;
+&nbsp;    /**
+&nbsp;     * Card&#39;s image indicated using an Integer attribute (1-3)
+&nbsp;     */
+&nbsp;    @Expose
+&nbsp;    private int image;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * ObjectCard&#39;s constructor
+&nbsp;     *
+&nbsp;     * @param list (1st parameter) List that contains all the objectcards used in the game
+&nbsp;     */
+<b class="fc">&nbsp;    ObjectCard(List&lt;ObjectCard&gt; list) throws Exception {</b>
+<b class="fc">&nbsp;        ArrayList&lt;Integer&gt; counters = new ArrayList&lt;&gt;();</b>
+&nbsp;        // counts types
+<b class="fc">&nbsp;        for (int i = 0; i &lt; 6; i++) {</b>
+<b class="fc">&nbsp;            int finalI = i;</b>
+<b class="fc">&nbsp;            counters.add((int) list</b>
+<b class="fc">&nbsp;                    .stream()</b>
+<b class="fc">&nbsp;                    .filter(x -&gt; x.getType().equals(ObjectCardType.values()[finalI]))</b>
+<b class="fc">&nbsp;                    .count());</b>
+&nbsp;        }
+&nbsp;        // extracts type and image
+<b class="fc">&nbsp;        Random finder = new Random();</b>
+<b class="fc">&nbsp;        boolean endCycle = false;</b>
+<b class="fc">&nbsp;        while (!endCycle) {</b>
+<b class="fc">&nbsp;            int position = finder.ints(0, TYPESLIMIT).findFirst().getAsInt();</b>
+<b class="fc">&nbsp;            if (counters.get(position) &lt; 22) {</b>
+<b class="fc">&nbsp;                this.type = ObjectCardType.values()[position];</b>
+<b class="fc">&nbsp;                this.image = finder.nextInt(1, IMAGESLIMIT + 1);</b>
+<b class="fc">&nbsp;                endCycle = true;</b>
+<b class="fc">&nbsp;                list.add(this);</b>
+&nbsp;            } else {
+<b class="fc">&nbsp;                if (list.size() &gt;= LIMIT)</b>
+<b class="nc">&nbsp;                    throw new Exception();</b>
+&nbsp;                else continue;
+&nbsp;            }
+<b class="fc">&nbsp;        }</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * ObjectCard&#39;s constructor, used only for testing
+&nbsp;     *
+&nbsp;     * @param type type of the new instance of ObjectCard
+&nbsp;     */
+<b class="fc">&nbsp;    ObjectCard(ObjectCardType type) throws RemoteException {</b>
+<b class="fc">&nbsp;        this.type = type;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * This method return objectcard&#39;s type
+&nbsp;     *
+&nbsp;     * @return type card&#39;s type
+&nbsp;     */
+&nbsp;    public ObjectCardType getType() {
+<b class="fc">&nbsp;        return type;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * This method returns Object Card&#39;s image
+&nbsp;     *
+&nbsp;     * @return int image
+&nbsp;     */
+&nbsp;    public int getImage() {
+<b class="fc">&nbsp;        return image;</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2023-05-30 20:39</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,70 @@
+%
+%                  Politecnico di Milano
+%
+%          Gruppo: AM34
+%            A.A.: 2022/2023
+%
+% Ultima modifica: 24/03/2023
+%
+%     Descrizione: Prova Finale (Progetto) di Ingegneria del Software - A.A. 2022/23
+%                  Allegato di sintesi al diagramma UML di model e controller
+%
+
+\documentclass[a4paper,11pt]{article} % tipo di documento
+\usepackage[T1]{fontenc} % codifica dei font
+\usepackage[utf8]{inputenc} % lettere accentate da tastiera
+\usepackage[english,italian]{babel} % lingua del documento
+\usepackage{url} % per scrivere gli indirizzi Internet e/o di riferimento nella pagina
+
+\usepackage[hidelinks]{hyperref} % per modificare il comportamento dei collegamenti ipertestuali (+ leva colore attorno)
+
+\usepackage[margin=0.7in]{geometry} % margine di pagina
+
+\usepackage{graphicx} % per inserire immagini
+
+\usepackage{fancyhdr} % per gestione intestazione e piè di pagina
+
+\hypersetup{ % metadati di titolo e autore nel PDF
+    pdftitle={Prova Finale di Ingegneria del Software - A.A. 2022/23},
+    pdfauthor={Andrea Caravano - Biagio Cancelliere - Alessandro Cavallo - Allegra Chiavacci}
+}
+
+\setlength{\parindent}{0pt} % rimuove l'indentazione del testo
+
+\begin{document}
+    \pagestyle{fancy}
+    \fancyhead{}\fancyfoot{}
+    \fancyhead[L]{\textbf{Prova Finale di Ingegneria del Software - A.A. 2022/23}}
+    \fancyhead[R]{Andrea Caravano - Biagio Cancelliere - Alessandro Cavallo - Allegra Chiavacci}
+    \fancyfoot[C]{\thepage}
+
+    \author{Andrea Caravano \and Biagio Cancelliere \and Alessandro Cavallo \and Allegra Chiavacci}
+    \title{\textbf{\Large{Prova Finale di Ingegneria del Software - A.A. 2022/23\\Peer-review n. 1\\Allegato di sintesi al diagramma UML}}}
+    \maketitle
+
+    \section*{}
+    L'idea alla base della formulazione del modello (e di conseguenza, il controller) parte dal flusso di gioco.
+
+    \medskip
+
+    Si è scelto infatti di implementare parte della logica di gioco nelle classi rispettive, utilizzando un approccio a metà tra la totale chiusura rispetto a futuri aggiornamenti e la totale estendibilità delle stesse.
+
+    \medskip
+
+    Di ispirazione sono stati gli oggetti di tipo \texttt{Optional}, che abbiamo utilizzato profusamente all'interno del modello e della conseguente logica.
+
+    \medskip
+
+    Particolare attenzione è stata posta allo sviluppo di un tipo \texttt{BoardSpace} che, oltre a comprendere gli intuitivi concetti di coordinata,
+    caratterizza le celle della plancia con un attributo indicante la propria utilizzabilità all'interno della struttura dati generale, nonché un parametro che
+    tenga conto degli ‘‘spazi speciali’’, dipendenti da un numero specificato di giocatori.
+
+    \medskip
+
+    Il controller vuole inoltre rappresentare l'anello di congiunzione degli approcci seguiti in fase di implementazione del modello, offrendo
+    metodi di gestione del protocollo di comunicazione, dei turni di gioco e della chat.
+
+    \medskip
+
+    Infine, è prevista la semplificazione della gestione di alcuni importanti eventi di interrupt del gioco, attraverso l'uso dei \texttt{Listener}.
+\end{document}

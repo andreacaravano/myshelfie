@@ -1,0 +1,592 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > Board</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.Server.Model</a>
+</div>
+
+<h1>Coverage Summary for Class: Board (it.polimi.ingsw.Server.Model)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Board</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (20/20)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    83,8%
+  </span>
+  <span class="absValue">
+    (155/185)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.Server.Model;
+&nbsp;
+&nbsp;import com.google.gson.Gson;
+&nbsp;import com.google.gson.GsonBuilder;
+&nbsp;import com.google.gson.annotations.Expose;
+&nbsp;import it.polimi.ingsw.Common.BoardInterface;
+&nbsp;import it.polimi.ingsw.Common.GsonOptionalSerializer;
+&nbsp;
+&nbsp;import java.io.FileNotFoundException;
+&nbsp;import java.io.IOException;
+&nbsp;import java.net.URI;
+&nbsp;import java.net.URISyntaxException;
+&nbsp;import java.nio.charset.StandardCharsets;
+&nbsp;import java.nio.file.FileSystem;
+&nbsp;import java.nio.file.FileSystemNotFoundException;
+&nbsp;import java.nio.file.Files;
+&nbsp;import java.nio.file.Paths;
+&nbsp;import java.nio.file.spi.FileSystemProvider;
+&nbsp;import java.rmi.RemoteException;
+&nbsp;import java.rmi.server.UnicastRemoteObject;
+&nbsp;import java.util.*;
+&nbsp;import java.util.stream.Collectors;
+&nbsp;import java.util.stream.Stream;
+&nbsp;
+&nbsp;/**
+&nbsp; * Game&#39;s Board
+&nbsp; */
+&nbsp;public class Board extends UnicastRemoteObject implements BoardInterface {
+&nbsp;    /**
+&nbsp;     * Maximum X dimension of the board
+&nbsp;     */
+&nbsp;    public static final int BOARD_DIM_X = 9;
+&nbsp;    /**
+&nbsp;     * Maximum Y dimension of the board
+&nbsp;     */
+&nbsp;    public static final int BOARD_DIM_Y = 9;
+&nbsp;    /**
+&nbsp;     * Game&#39;s minimum number of players
+&nbsp;     */
+<b class="fc">&nbsp;    private final int MINPLAYERS = 2;</b>
+&nbsp;    /**
+&nbsp;     * Game&#39;s maximum number of players
+&nbsp;     */
+<b class="fc">&nbsp;    private final int MAXPLAYERS = 4;</b>
+&nbsp;    /**
+&nbsp;     * Board Spaces implementation
+&nbsp;     */
+&nbsp;    @Expose
+&nbsp;    private BoardSpace[][] spaces;
+&nbsp;    /**
+&nbsp;     * Object Cards extracted in the related game
+&nbsp;     */
+<b class="fc">&nbsp;    @Expose(serialize = false, deserialize = true)</b>
+&nbsp;    private List&lt;ObjectCard&gt; objectCards = null;
+&nbsp;    /**
+&nbsp;     * List of the most recent Object Cards taken
+&nbsp;     */
+<b class="fc">&nbsp;    @Expose(serialize = false, deserialize = true)</b>
+&nbsp;    private Map&lt;ObjectCard, BoardSpace&gt; lastTaken = null;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Manages board creation and initialization, based on pre-built files indicating usable spaces and restrictions related to the number of players.
+&nbsp;     *
+&nbsp;     * @param playerCount number of players in the game
+&nbsp;     * @param objectCards List of extracted Object Cards
+&nbsp;     * @throws FileNotFoundException related to file management. In the default environment, necessary files are found in the &quot;/res/model/&quot; folder of the project.
+&nbsp;     */
+<b class="fc">&nbsp;    public Board(int playerCount, List&lt;ObjectCard&gt; objectCards) throws Exception {</b>
+<b class="fc">&nbsp;        if (playerCount &lt; MINPLAYERS || playerCount &gt; MAXPLAYERS)</b>
+<b class="nc">&nbsp;            throw new Exception();</b>
+&nbsp;
+<b class="fc">&nbsp;        spacesDeclaration(playerCount);</b>
+&nbsp;
+&nbsp;        // Initialize utilization tracking for Object Cards
+<b class="fc">&nbsp;        this.objectCards = Objects.requireNonNullElseGet(objectCards, ArrayList::new);</b>
+&nbsp;
+<b class="fc">&nbsp;        lastTaken = new HashMap&lt;&gt;();</b>
+&nbsp;
+&nbsp;        // default reset
+<b class="fc">&nbsp;        reset();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Related to Game&#39;s refresh strategy
+&nbsp;     */
+<b class="fc">&nbsp;    private Board(BoardSpace[][] spaces, List&lt;ObjectCard&gt; objectCards, Map&lt;ObjectCard, BoardSpace&gt; lastTaken) throws RemoteException {</b>
+<b class="fc">&nbsp;        this.spaces = spaces;</b>
+<b class="fc">&nbsp;        this.objectCards = objectCards;</b>
+<b class="fc">&nbsp;        this.lastTaken = lastTaken;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Takes care of creating the Board Spaces using JSON declaration files
+&nbsp;     *
+&nbsp;     * @param playerCount number of players in the game
+&nbsp;     * @throws URISyntaxException related to resources locators
+&nbsp;     * @throws IOException        related to file management
+&nbsp;     */
+&nbsp;    private void spacesDeclaration(int playerCount) throws URISyntaxException, IOException {
+&nbsp;        // JSON Parser
+<b class="fc">&nbsp;        Gson gson = new GsonBuilder()</b>
+<b class="fc">&nbsp;                .excludeFieldsWithoutExposeAnnotation()</b>
+<b class="fc">&nbsp;                .registerTypeAdapter(Optional.class, new GsonOptionalSerializer&lt;&gt;())</b>
+<b class="fc">&nbsp;                .create();</b>
+&nbsp;
+&nbsp;        // resource locator
+<b class="fc">&nbsp;        URI uri = ClassLoader.getSystemResource(&quot;model/board/&quot;</b>
+<b class="fc">&nbsp;                .concat(String.valueOf(playerCount))</b>
+<b class="fc">&nbsp;                .concat(&quot;.json&quot;)).toURI();</b>
+&nbsp;
+&nbsp;        // FileSystem support structure, related to JAR file structure
+<b class="fc">&nbsp;        FileSystem fs = null;</b>
+<b class="fc">&nbsp;        if (&quot;jar&quot;.equals(uri.getScheme())) {</b>
+<b class="nc">&nbsp;            for (FileSystemProvider provider : FileSystemProvider.installedProviders()) {</b>
+<b class="nc">&nbsp;                if (provider.getScheme().equalsIgnoreCase(&quot;jar&quot;)) {</b>
+&nbsp;                    try {
+<b class="nc">&nbsp;                        fs = provider.getFileSystem(uri);</b>
+<b class="nc">&nbsp;                    } catch (FileSystemNotFoundException e) {</b>
+&nbsp;                        // creates a temporary File System for artifacts file scheme
+<b class="nc">&nbsp;                        fs = provider.newFileSystem(uri, Collections.emptyMap());</b>
+<b class="nc">&nbsp;                    }</b>
+&nbsp;                }
+<b class="nc">&nbsp;            }</b>
+&nbsp;        }
+&nbsp;
+&nbsp;        // create spaces
+&nbsp;        String res;
+<b class="fc">&nbsp;        try (Stream&lt;String&gt; stream = Files.lines(Paths.get(uri), StandardCharsets.UTF_8)) {</b>
+<b class="fc">&nbsp;            res = stream.map(Object::toString)</b>
+<b class="fc">&nbsp;                    .collect(Collectors.joining());</b>
+<b class="fc">&nbsp;        }</b>
+&nbsp;
+&nbsp;        // close FileSystem
+<b class="fc">&nbsp;        if (fs != null) fs.close();</b>
+&nbsp;
+<b class="fc">&nbsp;        this.spaces = gson.fromJson(res, BoardSpace[][].class);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Returns a copy of the spaces array via functional approach.
+&nbsp;     *
+&nbsp;     * @return copy of spaces
+&nbsp;     */
+&nbsp;    public synchronized BoardSpace[][] getSpaces() {
+<b class="fc">&nbsp;        return Arrays.stream(spaces)</b>
+<b class="fc">&nbsp;                .map(BoardSpace[]::clone)</b>
+<b class="fc">&nbsp;                .toArray(BoardSpace[][]::new);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Checks if a space is usable given coordinates
+&nbsp;     *
+&nbsp;     * @param x coordinate
+&nbsp;     * @param y coordinate
+&nbsp;     * @return usability of that space
+&nbsp;     * @throws Exception if parameters are trying to go out of the board
+&nbsp;     */
+&nbsp;    public synchronized boolean isSpaceUsable(int x, int y) throws Exception {
+<b class="fc">&nbsp;        if (x &gt;= 0 &amp;&amp; x &lt; BOARD_DIM_X &amp;&amp; y &gt;= 0 &amp;&amp; y &lt; BOARD_DIM_Y)</b>
+<b class="fc">&nbsp;            return spaces[x][y].isUsable();</b>
+<b class="fc">&nbsp;        else throw new Exception();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Returns Object Card as an instance (not as Optional.of(card))
+&nbsp;     *
+&nbsp;     * @param x coordinate
+&nbsp;     * @param y coordinate
+&nbsp;     * @return the card
+&nbsp;     * @throws Exception if parameters are trying to go out of the board
+&nbsp;     */
+&nbsp;    public synchronized ObjectCard getPlainCardFromSpace(int x, int y) throws Exception {
+<b class="fc">&nbsp;        if (x &gt;= 0 &amp;&amp; x &lt; BOARD_DIM_X &amp;&amp; y &gt;= 0 &amp;&amp; y &lt; BOARD_DIM_Y)</b>
+<b class="fc">&nbsp;            return spaces[x][y].getPlainCard();</b>
+<b class="fc">&nbsp;        else throw new Exception();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Returns Object Card&#39;s type ordinal, given a Board Space
+&nbsp;     *
+&nbsp;     * @param x coordinate
+&nbsp;     * @param y coordinate
+&nbsp;     * @return the card&#39;s ordinal
+&nbsp;     * @throws Exception if parameters are trying to go out of the board
+&nbsp;     */
+&nbsp;    public synchronized int getCardOrdinalFromSpace(int x, int y) throws Exception {
+<b class="fc">&nbsp;        if (x &gt;= 0 &amp;&amp; x &lt;= BOARD_DIM_X - 1 &amp;&amp; y &gt;= 0 &amp;&amp; y &lt;= BOARD_DIM_Y - 1)</b>
+<b class="fc">&nbsp;            if (spaces[x][y].getCard().isPresent())</b>
+<b class="fc">&nbsp;                return spaces[x][y].getCard().get().getType().ordinal();</b>
+<b class="fc">&nbsp;            else return -1;</b>
+<b class="fc">&nbsp;        else throw new Exception();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Returns Object Card&#39;s image path, given a Board Space
+&nbsp;     *
+&nbsp;     * @param x coordinate
+&nbsp;     * @param y coordinate
+&nbsp;     * @return the card&#39;s image path
+&nbsp;     * @throws Exception if parameters are trying to go out of the board
+&nbsp;     */
+&nbsp;    public synchronized String getCardImageFromSpace(int x, int y) throws Exception {
+<b class="fc">&nbsp;        if (x &gt;= 0 &amp;&amp; x &lt;= BOARD_DIM_X - 1 &amp;&amp; y &gt;= 0 &amp;&amp; y &lt;= BOARD_DIM_Y - 1)</b>
+<b class="fc">&nbsp;            if (spaces[x][y].getCard().isPresent())</b>
+<b class="fc">&nbsp;                return spaces[x][y].getCard().get().getType().name().concat(&quot;-&quot;).concat(String.valueOf(spaces[x][y].getCard().get().getImage()));</b>
+<b class="fc">&nbsp;            else return null;</b>
+<b class="fc">&nbsp;        else throw new Exception();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Returns a list of usable and effectively present cards on the board, based on a functional approach using Optionals.
+&nbsp;     *
+&nbsp;     * @return list of cards on the board
+&nbsp;     */
+&nbsp;    public synchronized List&lt;ObjectCard&gt; boardCards() {
+<b class="fc">&nbsp;        return Stream.of(spaces)</b>
+<b class="fc">&nbsp;                .flatMap(Stream::of)</b>
+<b class="fc">&nbsp;                .filter(s -&gt; s.isUsable() &amp;&amp; s.getCard().isPresent())</b>
+<b class="fc">&nbsp;                .map(s -&gt; s.getCard().orElseThrow())</b>
+<b class="fc">&nbsp;                .collect(Collectors.toList());</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Checks if a reset of the board is needed, watching at usable and effectively present spaces
+&nbsp;     *
+&nbsp;     * @return boolean: reset of the board is compulsory to continue the game
+&nbsp;     */
+&nbsp;    synchronized boolean resetNeeded() {
+<b class="fc">&nbsp;        if (boardCards().isEmpty())</b>
+<b class="fc">&nbsp;            return true;</b>
+<b class="fc">&nbsp;        for (int i = 0; i &lt; BOARD_DIM_Y; i++) {</b>
+<b class="fc">&nbsp;            for (int j = 0; j &lt; BOARD_DIM_Y; j++) {</b>
+<b class="fc">&nbsp;                if (spaces[i][j].isUsable() &amp;&amp; spaces[i][j].getCard().isPresent()) {</b>
+<b class="fc">&nbsp;                    if (i &gt;= 1)</b>
+<b class="fc">&nbsp;                        if (spaces[i - 1][j].isUsable() &amp;&amp; spaces[i - 1][j].getCard().isPresent())</b>
+<b class="nc">&nbsp;                            return false;</b>
+<b class="fc">&nbsp;                    if (i &lt;= BOARD_DIM_Y - 2)</b>
+<b class="fc">&nbsp;                        if (spaces[i + 1][j].isUsable() &amp;&amp; spaces[i + 1][j].getCard().isPresent())</b>
+<b class="fc">&nbsp;                            return false;</b>
+<b class="fc">&nbsp;                    if (j &gt;= 1)</b>
+<b class="fc">&nbsp;                        if (spaces[i][j - 1].isUsable() &amp;&amp; spaces[i][j - 1].getCard().isPresent())</b>
+<b class="nc">&nbsp;                            return false;</b>
+<b class="fc">&nbsp;                    if (j &lt;= BOARD_DIM_X - 2)</b>
+<b class="fc">&nbsp;                        if (spaces[i][j + 1].isUsable() &amp;&amp; spaces[i][j + 1].getCard().isPresent())</b>
+<b class="fc">&nbsp;                            return false;</b>
+&nbsp;                }
+&nbsp;            }
+&nbsp;        }
+<b class="fc">&nbsp;        return true;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Checks the condition for enabling reset on the board (even if not all cards are put on it)
+&nbsp;     *
+&nbsp;     * @return condition for reset enabling
+&nbsp;     */
+&nbsp;    private synchronized boolean resetEnabled() {
+<b class="fc">&nbsp;        return objectCards.size() &lt; ObjectCard.LIMIT;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Implements reset logic. The same approach is used in the construction of the board.
+&nbsp;     */
+&nbsp;    private synchronized void reset() {
+<b class="fc">&nbsp;        if (resetNeeded() &amp;&amp; resetEnabled()) {</b>
+<b class="fc">&nbsp;            for (int i = 0; i &lt; BOARD_DIM_X; i++) {</b>
+<b class="fc">&nbsp;                for (int j = 0; j &lt; BOARD_DIM_Y; j++) {</b>
+<b class="fc">&nbsp;                    if (spaces[i][j].isUsable() &amp;&amp; spaces[i][j].getCard().isEmpty()) {</b>
+&nbsp;                        try {
+<b class="fc">&nbsp;                            spaces[i][j].setCard(Optional.of(new ObjectCard(objectCards)));</b>
+<b class="nc">&nbsp;                        } catch (Exception ignored) {</b>
+&nbsp;
+<b class="fc">&nbsp;                        }</b>
+&nbsp;                    }
+&nbsp;                }
+&nbsp;            }
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Checks if, given a list of sequentially ordered cards, every card has a &quot;free side&quot;.
+&nbsp;     * VERSION 2: checks for every card rather than the group
+&nbsp;     *
+&nbsp;     * @param list of sequentially ordered cards (indexes on the board can be disordered)
+&nbsp;     * @return whether if a move is permitted
+&nbsp;     */
+&nbsp;    public synchronized boolean valid(List&lt;ObjectCard&gt; list) {
+<b class="fc">&nbsp;        if (list == null || list.isEmpty() || list.size() &gt; 3 || list.contains(null))</b>
+<b class="fc">&nbsp;            return false;</b>
+<b class="fc">&nbsp;        if (!boardCards().containsAll(list))</b>
+<b class="nc">&nbsp;            return false;</b>
+&nbsp;
+<b class="fc">&nbsp;        List&lt;Integer&gt; x = new ArrayList&lt;&gt;();</b>
+<b class="fc">&nbsp;        List&lt;Integer&gt; y = new ArrayList&lt;&gt;();</b>
+<b class="fc">&nbsp;        int counter = 0;</b>
+&nbsp;
+&nbsp;        // finds cards on the board
+<b class="fc">&nbsp;        for (int i = 0; i &lt; BOARD_DIM_Y; i++) {</b>
+<b class="fc">&nbsp;            for (int j = 0; j &lt; BOARD_DIM_Y; j++) {</b>
+<b class="fc">&nbsp;                if (spaces[i][j].isUsable() &amp;&amp; spaces[i][j].getCard().isPresent()) {</b>
+<b class="fc">&nbsp;                    if (counter &lt; list.size() &amp;&amp; list.contains(spaces[i][j].getCard().get())) {</b>
+<b class="fc">&nbsp;                        x.add(i);</b>
+<b class="fc">&nbsp;                        y.add(j);</b>
+<b class="fc">&nbsp;                        counter++;</b>
+&nbsp;                    }
+&nbsp;                }
+&nbsp;            }
+&nbsp;        }
+<b class="fc">&nbsp;        if (x.size() != list.size() || y.size() != list.size())</b>
+<b class="nc">&nbsp;            return false;</b>
+&nbsp;
+&nbsp;        // cards are on the same row
+<b class="fc">&nbsp;        if (x.stream().distinct().count() == 1) {</b>
+<b class="fc">&nbsp;            Collections.sort(y);</b>
+<b class="fc">&nbsp;            if (list.size() == 3) {</b>
+<b class="fc">&nbsp;                if (!(y.get(2).equals(y.get(1) + 1) &amp;&amp; y.get(1).equals(y.get(0) + 1))) {</b>
+<b class="nc">&nbsp;                    return false;</b>
+&nbsp;                }
+<b class="fc">&nbsp;            } else if (list.size() == 2) {</b>
+<b class="fc">&nbsp;                if (!(y.get(1).equals(y.get(0) + 1))) {</b>
+<b class="nc">&nbsp;                    return false;</b>
+&nbsp;                }
+&nbsp;            }
+&nbsp;        }
+&nbsp;
+&nbsp;        // cards are on the same column
+<b class="fc">&nbsp;        if (y.stream().distinct().count() == 1) {</b>
+<b class="fc">&nbsp;            Collections.sort(x);</b>
+<b class="fc">&nbsp;            if (list.size() == 3) {</b>
+<b class="nc">&nbsp;                if (!(x.get(2).equals(x.get(1) + 1) &amp;&amp; x.get(1).equals(x.get(0) + 1))) {</b>
+<b class="nc">&nbsp;                    return false;</b>
+&nbsp;                }
+<b class="fc">&nbsp;            } else if (list.size() == 2) {</b>
+<b class="nc">&nbsp;                if (!(x.get(1).equals(x.get(0) + 1))) {</b>
+<b class="nc">&nbsp;                    return false;</b>
+&nbsp;                }
+&nbsp;            }
+&nbsp;        }
+&nbsp;
+<b class="fc">&nbsp;        counter = 0;</b>
+&nbsp;        // order independent check of free sides
+<b class="fc">&nbsp;        for (int i = 0; i &lt; x.stream().distinct().count(); i++) {</b>
+<b class="fc">&nbsp;            for (int j = 0; j &lt; y.stream().distinct().count(); j++) {</b>
+<b class="fc">&nbsp;                if (x.get(i) == 0 || x.get(i) == BOARD_DIM_X - 1) {</b>
+<b class="fc">&nbsp;                    counter++;</b>
+<b class="fc">&nbsp;                    continue;</b>
+&nbsp;                }
+<b class="fc">&nbsp;                if (y.get(j) == 0 || y.get(j) == BOARD_DIM_Y - 1) {</b>
+<b class="fc">&nbsp;                    counter++;</b>
+<b class="fc">&nbsp;                    continue;</b>
+&nbsp;                }
+<b class="fc">&nbsp;                if (x.get(i) &gt;= 1)</b>
+<b class="fc">&nbsp;                    if (spaces[x.get(i) - 1][y.get(j)].getCard().isEmpty()) {</b>
+<b class="fc">&nbsp;                        counter++;</b>
+<b class="fc">&nbsp;                        continue;</b>
+&nbsp;                    }
+<b class="fc">&nbsp;                if (x.get(i) &lt;= BOARD_DIM_Y - 2)</b>
+<b class="fc">&nbsp;                    if (spaces[x.get(i) + 1][y.get(j)].getCard().isEmpty()) {</b>
+<b class="fc">&nbsp;                        counter++;</b>
+<b class="fc">&nbsp;                        continue;</b>
+&nbsp;                    }
+<b class="fc">&nbsp;                if (x.get(j) &gt;= 1)</b>
+<b class="fc">&nbsp;                    if (spaces[x.get(i)][y.get(j) - 1].getCard().isEmpty()) {</b>
+<b class="nc">&nbsp;                        counter++;</b>
+<b class="nc">&nbsp;                        continue;</b>
+&nbsp;                    }
+<b class="fc">&nbsp;                if (x.get(j) &lt;= BOARD_DIM_X - 2)</b>
+<b class="fc">&nbsp;                    if (spaces[x.get(i)][y.get(j) + 1].getCard().isEmpty()) {</b>
+<b class="fc">&nbsp;                        counter++;</b>
+&nbsp;                        continue;
+&nbsp;                    }
+&nbsp;            }
+&nbsp;        }
+&nbsp;
+<b class="fc">&nbsp;        return counter == list.size();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Checks if a group of couples of coordinates is a valid move on the board
+&nbsp;     *
+&nbsp;     * @param x list ofcoordinates
+&nbsp;     * @param y list of coordinates
+&nbsp;     * @return move validation
+&nbsp;     * @throws Exception to manage board dimension limits
+&nbsp;     */
+&nbsp;    public synchronized boolean validFromCoordinate(List&lt;Integer&gt; x, List&lt;Integer&gt; y) throws Exception {
+<b class="fc">&nbsp;        if (x == null || y == null || x.isEmpty() || y.isEmpty() || x.contains(null) || y.contains(null))</b>
+<b class="nc">&nbsp;            return false;</b>
+<b class="fc">&nbsp;        if (x.size() != y.size())</b>
+<b class="nc">&nbsp;            return false;</b>
+<b class="fc">&nbsp;        List&lt;ObjectCard&gt; arg = getCardsFromCoordinate(x, y);</b>
+<b class="fc">&nbsp;        return valid(arg);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Returns a list of cards contained in a group of coordinates
+&nbsp;     *
+&nbsp;     * @param x list of coordinates
+&nbsp;     * @param y list of coordinates
+&nbsp;     * @return the list of cards
+&nbsp;     * @throws Exception to manage board dimension limits
+&nbsp;     */
+&nbsp;    public synchronized List&lt;ObjectCard&gt; getCardsFromCoordinate(List&lt;Integer&gt; x, List&lt;Integer&gt; y) throws Exception {
+<b class="fc">&nbsp;        if (x == null || y == null || x.isEmpty() || y.isEmpty() || x.contains(null) || y.contains(null))</b>
+<b class="nc">&nbsp;            throw new Exception();</b>
+<b class="fc">&nbsp;        if (x.size() != y.size())</b>
+<b class="nc">&nbsp;            throw new Exception();</b>
+<b class="fc">&nbsp;        List&lt;ObjectCard&gt; ret = new ArrayList&lt;&gt;();</b>
+<b class="fc">&nbsp;        for (int i = 0; i &lt; x.size(); i++) {</b>
+<b class="fc">&nbsp;            ret.add(getPlainCardFromSpace(x.get(i), y.get(i)));</b>
+&nbsp;        }
+<b class="fc">&nbsp;        return ret;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Removes from board a list of ordered cards (only valid moves are accepted)
+&nbsp;     *
+&nbsp;     * @param orderedCards list of ordered cards (also if not internally)
+&nbsp;     * @throws Exception if an invalid deletion is tried
+&nbsp;     */
+&nbsp;    public synchronized void takeFromBoard(List&lt;ObjectCard&gt; orderedCards) throws Exception {
+<b class="fc">&nbsp;        if (!valid(orderedCards))</b>
+<b class="nc">&nbsp;            throw new Exception();</b>
+<b class="fc">&nbsp;        if (!boardCards().containsAll(orderedCards))</b>
+<b class="nc">&nbsp;            throw new Exception();</b>
+&nbsp;
+<b class="fc">&nbsp;        lastTaken.clear();</b>
+<b class="fc">&nbsp;        for (int i = 0; i &lt; BOARD_DIM_Y; i++) {</b>
+<b class="fc">&nbsp;            for (int j = 0; j &lt; BOARD_DIM_Y; j++) {</b>
+<b class="fc">&nbsp;                if (spaces[i][j].getCard().isPresent() &amp;&amp; orderedCards.contains(spaces[i][j].getCard().get())) {</b>
+<b class="fc">&nbsp;                    lastTaken.put(spaces[i][j].getCard().get(), spaces[i][j]);</b>
+<b class="fc">&nbsp;                    spaces[i][j].setCard(Optional.empty());</b>
+&nbsp;                }
+&nbsp;            }
+&nbsp;        }
+<b class="fc">&nbsp;        if (!lastTaken.isEmpty()) {</b>
+<b class="fc">&nbsp;            reset();</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Removes from board a group of cards based on their coordinates (only valid moves are accepted)
+&nbsp;     *
+&nbsp;     * @param x list of coordinates
+&nbsp;     * @param y list of coordinates
+&nbsp;     * @return action validity
+&nbsp;     * @throws Exception if an invalid deletion is tried
+&nbsp;     */
+&nbsp;    public synchronized List&lt;ObjectCard&gt; takeFromBoardFromCoordinate(List&lt;Integer&gt; x, List&lt;Integer&gt; y) throws Exception {
+<b class="fc">&nbsp;        if (x == null || y == null || x.isEmpty() || y.isEmpty())</b>
+<b class="nc">&nbsp;            throw new Exception();</b>
+<b class="fc">&nbsp;        if (x.size() != y.size())</b>
+<b class="nc">&nbsp;            throw new Exception();</b>
+<b class="fc">&nbsp;        List&lt;ObjectCard&gt; arg = getCardsFromCoordinate(x, y);</b>
+<b class="fc">&nbsp;        takeFromBoard(arg);</b>
+<b class="fc">&nbsp;        return arg;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Restores the last move (group of cards taken from board)
+&nbsp;     *
+&nbsp;     * @throws Exception if a restore is tried before any take has happened
+&nbsp;     */
+&nbsp;    public synchronized void restoreLastTaken() throws Exception {
+<b class="fc">&nbsp;        if (lastTaken == null || lastTaken.isEmpty())</b>
+<b class="nc">&nbsp;            throw new Exception();</b>
+<b class="fc">&nbsp;        for (ObjectCard oc : lastTaken.keySet()) {</b>
+<b class="fc">&nbsp;            spaces[lastTaken.get(oc).getX()][lastTaken.get(oc).getY()].setCard(Optional.of(oc));</b>
+<b class="fc">&nbsp;        }</b>
+<b class="fc">&nbsp;        lastTaken.clear();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Refreshed copy, after server reload from file
+&nbsp;     *
+&nbsp;     * @return new copy of the object
+&nbsp;     * @throws RemoteException related to RMI
+&nbsp;     */
+&nbsp;    public Board getCopy() throws RemoteException {
+<b class="fc">&nbsp;        return new Board(this.spaces, this.objectCards, this.lastTaken);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * @return extracted Object Cards list
+&nbsp;     */
+&nbsp;    public List&lt;ObjectCard&gt; getObjectCards() {
+<b class="fc">&nbsp;        return objectCards;</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2023-05-30 20:39</div>
+</div>
+</body>
+</html>

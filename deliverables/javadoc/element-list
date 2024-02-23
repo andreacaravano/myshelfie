@@ -1,0 +1,8 @@
+it.polimi.ingsw.Client
+it.polimi.ingsw.Client.ClientModel
+it.polimi.ingsw.Client.View
+it.polimi.ingsw.Common
+it.polimi.ingsw.Server
+it.polimi.ingsw.Server.Controller
+it.polimi.ingsw.Server.Model
+it.polimi.ingsw.Utility

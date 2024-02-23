@@ -1,0 +1,35 @@
+#
+#                  Politecnico di Milano
+#
+#          Gruppo: AM34
+#            A.A.: 2022/2023
+#
+# Ultima modifica: 19/04/2023
+#
+#     Descrizione: Automated Maven Build and Unit Tests Workflow for GitHub Actions
+#
+
+name: Maven Build and Unit Tests
+
+on:
+  push:
+    branches: main
+  pull_request:
+    branches: main
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Code checkout
+        uses: actions/checkout@v3
+      - name: Set up OpenJDK 19
+        uses: actions/setup-java@v3
+        with:
+          java-version: '19'
+          distribution: 'temurin'
+          cache: maven
+      - name: Build and run unit tests with Maven
+        run: mvn -B package --file pom.xml

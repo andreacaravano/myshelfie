@@ -1,0 +1,278 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > PersonalGoalCard</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.Server.Model</a>
+</div>
+
+<h1>Coverage Summary for Class: PersonalGoalCard (it.polimi.ingsw.Server.Model)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">PersonalGoalCard</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (8/8)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    81,4%
+  </span>
+  <span class="absValue">
+    (35/43)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.Server.Model;
+&nbsp;
+&nbsp;import com.google.gson.Gson;
+&nbsp;import com.google.gson.GsonBuilder;
+&nbsp;import com.google.gson.annotations.Expose;
+&nbsp;import it.polimi.ingsw.Common.GsonOptionalSerializer;
+&nbsp;import it.polimi.ingsw.Common.PersonalGoalCardInterface;
+&nbsp;
+&nbsp;import java.io.IOException;
+&nbsp;import java.net.URI;
+&nbsp;import java.net.URISyntaxException;
+&nbsp;import java.nio.charset.StandardCharsets;
+&nbsp;import java.nio.file.FileSystem;
+&nbsp;import java.nio.file.FileSystemNotFoundException;
+&nbsp;import java.nio.file.Files;
+&nbsp;import java.nio.file.Paths;
+&nbsp;import java.nio.file.spi.FileSystemProvider;
+&nbsp;import java.rmi.RemoteException;
+&nbsp;import java.rmi.server.UnicastRemoteObject;
+&nbsp;import java.util.Collections;
+&nbsp;import java.util.Optional;
+&nbsp;import java.util.stream.Collectors;
+&nbsp;import java.util.stream.Stream;
+&nbsp;
+&nbsp;import static it.polimi.ingsw.Server.Model.Shelf.SHELF_DIM_X;
+&nbsp;import static it.polimi.ingsw.Server.Model.Shelf.SHELF_DIM_Y;
+&nbsp;
+&nbsp;/**
+&nbsp; * This class represents the Personal Goal cards, thanks to which players may grant points
+&nbsp; * if they match the pattern with the corresponding ObjectCards
+&nbsp; */
+&nbsp;public class PersonalGoalCard extends UnicastRemoteObject implements PersonalGoalCardInterface {
+&nbsp;    /**
+&nbsp;     * Limit of Personal Goal Cards.
+&nbsp;     */
+&nbsp;    public static final int LIMIT = 12;
+&nbsp;    /**
+&nbsp;     * This attribute stands for the id of the Personal Goal Card, which permits to
+&nbsp;     * identify the different Personal Goal Cards.
+&nbsp;     */
+&nbsp;    @Expose
+&nbsp;    private final int type;
+&nbsp;    /**
+&nbsp;     * The pattern represents the position of specific types of object cards.
+&nbsp;     */
+&nbsp;    @Expose
+&nbsp;    private Optional&lt;ObjectCardType&gt;[][] pattern;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Class constructor. The pattern is created by reading information from the file.
+&nbsp;     *
+&nbsp;     * @param type personal goal cards&#39; id
+&nbsp;     * @throws Exception if the file is not read properly
+&nbsp;     */
+&nbsp;
+<b class="fc">&nbsp;    public PersonalGoalCard(int type) throws Exception {</b>
+<b class="fc">&nbsp;        this.type = type;</b>
+&nbsp;
+<b class="fc">&nbsp;        this.pattern = new Optional[SHELF_DIM_X][SHELF_DIM_Y];</b>
+&nbsp;
+<b class="fc">&nbsp;        declarePattern(type);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Related to Game&#39;s refresh strategy
+&nbsp;     */
+<b class="fc">&nbsp;    private PersonalGoalCard(int type, Optional&lt;ObjectCardType&gt;[][] pattern) throws RemoteException {</b>
+<b class="fc">&nbsp;        this.type = type;</b>
+<b class="fc">&nbsp;        this.pattern = pattern;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void declarePattern(int type) throws URISyntaxException, IOException {
+&nbsp;        // JSON Parser
+<b class="fc">&nbsp;        Gson gson = new GsonBuilder()</b>
+<b class="fc">&nbsp;                .excludeFieldsWithoutExposeAnnotation()</b>
+<b class="fc">&nbsp;                .registerTypeAdapter(Optional.class, new GsonOptionalSerializer&lt;&gt;())</b>
+<b class="fc">&nbsp;                .create();</b>
+&nbsp;
+&nbsp;        // resource locator
+<b class="fc">&nbsp;        URI uri = ClassLoader.getSystemResource(&quot;model/pgc/&quot;</b>
+<b class="fc">&nbsp;                .concat(String.valueOf(type))</b>
+<b class="fc">&nbsp;                .concat(&quot;.json&quot;)).toURI();</b>
+&nbsp;
+&nbsp;        // FileSystem support structure, related to JAR file structure
+<b class="fc">&nbsp;        FileSystem fs = null;</b>
+<b class="fc">&nbsp;        if (&quot;jar&quot;.equals(uri.getScheme())) {</b>
+<b class="nc">&nbsp;            for (FileSystemProvider provider : FileSystemProvider.installedProviders()) {</b>
+<b class="nc">&nbsp;                if (provider.getScheme().equalsIgnoreCase(&quot;jar&quot;)) {</b>
+&nbsp;                    try {
+<b class="nc">&nbsp;                        fs = provider.getFileSystem(uri);</b>
+<b class="nc">&nbsp;                    } catch (FileSystemNotFoundException e) {</b>
+&nbsp;                        // creates a temporary File System for artifacts file scheme
+<b class="nc">&nbsp;                        fs = provider.newFileSystem(uri, Collections.emptyMap());</b>
+<b class="nc">&nbsp;                    }</b>
+&nbsp;                }
+<b class="nc">&nbsp;            }</b>
+&nbsp;        }
+&nbsp;
+&nbsp;        // create pattern
+&nbsp;        String res;
+<b class="fc">&nbsp;        try (Stream&lt;String&gt; stream = Files.lines(Paths.get(uri), StandardCharsets.UTF_8)) {</b>
+<b class="fc">&nbsp;            res = stream.map(Object::toString)</b>
+<b class="fc">&nbsp;                    .collect(Collectors.joining());</b>
+<b class="fc">&nbsp;        }</b>
+&nbsp;
+&nbsp;        // close FileSystem
+<b class="fc">&nbsp;        if (fs != null) fs.close();</b>
+&nbsp;
+<b class="fc">&nbsp;        ObjectCardType[][] tempPattern = gson.fromJson(res, ObjectCardType[][].class);</b>
+&nbsp;
+<b class="fc">&nbsp;        for (int i = 0; i &lt; SHELF_DIM_X; i++) {</b>
+<b class="fc">&nbsp;            for (int j = 0; j &lt; SHELF_DIM_Y; j++) {</b>
+<b class="fc">&nbsp;                if (tempPattern[i][j] == null)</b>
+<b class="fc">&nbsp;                    pattern[i][j] = Optional.empty();</b>
+<b class="fc">&nbsp;                else pattern[i][j] = Optional.of(tempPattern[i][j]);</b>
+&nbsp;            }
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Getter method for Personal Goal Card
+&nbsp;     *
+&nbsp;     * @return type of the card
+&nbsp;     */
+&nbsp;    public int getType() {
+<b class="fc">&nbsp;        return type;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * returns the pattern
+&nbsp;     *
+&nbsp;     * @return a multidimensional array of optional object card types
+&nbsp;     */
+&nbsp;    public Optional&lt;ObjectCardType&gt;[][] getPattern() {
+<b class="fc">&nbsp;        return pattern;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * getter method
+&nbsp;     *
+&nbsp;     * @param x coordinate
+&nbsp;     * @param y coordinate
+&nbsp;     * @return ObjectCardType in position[x][y] of the PersonalCard
+&nbsp;     */
+&nbsp;
+&nbsp;    public ObjectCardType getPlainType(int x, int y) {
+<b class="fc">&nbsp;        return pattern[x][y].orElse(null);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * getter method
+&nbsp;     *
+&nbsp;     * @param x coordinate
+&nbsp;     * @param y coordinate
+&nbsp;     * @return ordinal of ObjectCardType or -1 if the card is empty
+&nbsp;     * @throws Exception if coordinates are invalid
+&nbsp;     */
+&nbsp;    public int getOrdinal(int x, int y) throws Exception {
+<b class="fc">&nbsp;        if (x &gt;= 0 &amp;&amp; x &lt;= SHELF_DIM_X - 1 &amp;&amp; y &gt;= 0 &amp;&amp; y &lt;= SHELF_DIM_Y - 1)</b>
+<b class="fc">&nbsp;            if (pattern[x][y].isPresent())</b>
+<b class="fc">&nbsp;                return pattern[x][y].get().ordinal();</b>
+<b class="fc">&nbsp;            else return -1;</b>
+<b class="nc">&nbsp;        else throw new Exception();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Refreshed copy, after server reload from file
+&nbsp;     *
+&nbsp;     * @return new copy of the object
+&nbsp;     * @throws RemoteException related to RMI
+&nbsp;     */
+&nbsp;    public PersonalGoalCard getCopy() throws RemoteException {
+<b class="fc">&nbsp;        return new PersonalGoalCard(this.type, this.pattern);</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2023-05-30 20:39</div>
+</div>
+</body>
+</html>

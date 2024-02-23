@@ -1,0 +1,131 @@
+@startuml
+
+' generated via PlantUML Web Server: http://www.plantuml.com/plantuml/
+
+' "yellow" theme
+skin rose
+
+class it.polimi.ingsw.Client.ClientModel.ClientBoard {
+}
+class it.polimi.ingsw.Client.ClientModel.ClientCommonGoalCard {
+}
+interface it.polimi.ingsw.Common.ShelfInterface {
+}
+interface it.polimi.ingsw.Common.ScoreBoardInterface {
+}
+interface it.polimi.ingsw.Common.RMIControllerInterface {
+}
+interface it.polimi.ingsw.Common.ClientStatusInterface {
+}
+class it.polimi.ingsw.Client.ClientModel.ClientStatus {
+}
+class it.polimi.ingsw.Server.SocketServer {
+}
+class it.polimi.ingsw.Client.View.MultipleView {
+}
+class it.polimi.ingsw.Server.RMIServer {
+}
+interface it.polimi.ingsw.Common.ObjectCardInterface {
+}
+class it.polimi.ingsw.Client.ClientModel.ClientMove {
+}
+class it.polimi.ingsw.Client.SocketClient {
+}
+enum it.polimi.ingsw.Client.ClientModel.ClientObjectCardType {
++  CATS
++  BOOKS
++  GAMES
++  FRAMES
++  TROPHIES
++  PLANTS
+}
+class it.polimi.ingsw.Client.GUI {
+}
+interface it.polimi.ingsw.Common.StatusIntermediateInterface {
+}
+interface it.polimi.ingsw.Common.MoveIntermediateInterface {
+}
+interface it.polimi.ingsw.Common.CommonGoalCardInterface {
+}
+class it.polimi.ingsw.Client.ClientModel.ClientScoreCard {
+}
+class it.polimi.ingsw.Server.ServerManager {
+}
+class it.polimi.ingsw.Client.RMIClient {
+}
+class it.polimi.ingsw.Server.Controller.MoveIntermediate {
+}
+interface it.polimi.ingsw.Common.ScoreCardInterface {
+}
+class it.polimi.ingsw.Client.ClientModel.ClientObjectCard {
+}
+class it.polimi.ingsw.Client.ClientModel.ClientShelf {
+}
+class it.polimi.ingsw.Client.ClientModel.ClientPersonalGoalCard {
+}
+class it.polimi.ingsw.Client.ClientModel.ClientBoardSpace {
+}
+class it.polimi.ingsw.Client.ClientModel.ClientScoreboard {
+}
+interface it.polimi.ingsw.Common.BoardInterface {
+}
+interface it.polimi.ingsw.Common.PersonalGoalCardInterface {
+}
+enum it.polimi.ingsw.Common.Status {
++  EOS
++  Sending_Identifier
++  Request_NumberOfPlayers
++  Response_NumberOfPlayers
++  Request_Nickname
++  Response_Nickname
++  Accepted_Request
++  Denied_Request
++  NotYourTurn
++  YourTurn
++  Move_Request
++  SuccessfulMove
++  FailedMove
++  SendingBoard
++  SendingShelf
++  SendingPersonalGoalCard
++  SendingCommonGoalCardSpecification
++  AchievementUpdate
++  PlayerScoreCards
++  LastTurn
++  MoveAllowed
++  MoveNotAllowed
++  GameEnded
++  FinalScoreboard
++  ForcedGameEnd
++  KeepAlive
++  KATimeout
++  InvalidStatus
++  Error
+}
+
+
+it.polimi.ingsw.Common.BoardInterface <|.. it.polimi.ingsw.Client.ClientModel.ClientBoard
+it.polimi.ingsw.Common.CommonGoalCardInterface <|.. it.polimi.ingsw.Client.ClientModel.ClientCommonGoalCard
+java.rmi.Remote <|-- it.polimi.ingsw.Common.ShelfInterface
+java.rmi.Remote <|-- it.polimi.ingsw.Common.ScoreBoardInterface
+java.rmi.Remote <|-- it.polimi.ingsw.Common.RMIControllerInterface
+java.rmi.Remote <|-- it.polimi.ingsw.Common.ClientStatusInterface
+it.polimi.ingsw.Client.ClientModel.ClientStatusInterface <|.. it.polimi.ingsw.Client.ClientModel.ClientStatus
+java.rmi.server.UnicastRemoteObject <|-- it.polimi.ingsw.Client.ClientModel.ClientStatus
+java.rmi.Remote <|-- it.polimi.ingsw.Common.ObjectCardInterface
+javafx.application.Application <|-- it.polimi.ingsw.Client.GUI
+java.rmi.Remote <|-- it.polimi.ingsw.Common.StatusIntermediateInterface
+java.rmi.Remote <|-- it.polimi.ingsw.Common.MoveIntermediateInterface
+java.rmi.Remote <|-- it.polimi.ingsw.Common.CommonGoalCardInterface
+it.polimi.ingsw.Common.ScoreCardInterface <|.. it.polimi.ingsw.Client.ClientModel.ClientScoreCard
+it.polimi.ingsw.Client.RMIClientInterface <|.. it.polimi.ingsw.Client.RMIClient
+it.polimi.ingsw.Common.MoveIntermediateInterface <|.. it.polimi.ingsw.Server.Controller.MoveIntermediate
+java.rmi.server.UnicastRemoteObject <|-- it.polimi.ingsw.Server.Controller.MoveIntermediate
+java.rmi.Remote <|-- it.polimi.ingsw.Common.ScoreCardInterface
+it.polimi.ingsw.Common.ObjectCardInterface <|.. it.polimi.ingsw.Client.ClientModel.ClientObjectCard
+it.polimi.ingsw.Common.ShelfInterface <|.. it.polimi.ingsw.Client.ClientModel.ClientShelf
+it.polimi.ingsw.Common.PersonalGoalCardInterface <|.. it.polimi.ingsw.Client.ClientModel.ClientPersonalGoalCard
+it.polimi.ingsw.Common.ScoreBoardInterface <|.. it.polimi.ingsw.Client.ClientModel.ClientScoreboard
+java.rmi.Remote <|-- it.polimi.ingsw.Common.BoardInterface
+java.rmi.Remote <|-- it.polimi.ingsw.Common.PersonalGoalCardInterface
+@enduml

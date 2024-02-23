@@ -1,0 +1,84 @@
+%
+%                  Politecnico di Milano
+%
+%          Gruppo: AM34
+%            A.A.: 2022/2023
+%
+% Ultima modifica: 30/03/2023
+%
+%     Descrizione: Prova Finale (Progetto) di Ingegneria del Software - A.A. 2022/23
+%                  Peer review n. 1
+%
+
+\documentclass[a4paper,11pt]{article} % tipo di documento
+\usepackage[T1]{fontenc} % codifica dei font
+\usepackage[utf8]{inputenc} % lettere accentate da tastiera
+\usepackage[english,italian]{babel} % lingua del documento
+\usepackage{lipsum} % genera testo fittizio
+\usepackage{url} % per scrivere gli indirizzi Internet e/o di riferimento nella pagina
+
+\usepackage[hidelinks]{hyperref} % per modificare il comportamento dei collegamenti ipertestuali (+ leva colore attorno)
+
+\usepackage[margin=0.7in]{geometry} % margine di pagina
+
+\usepackage{graphicx} % per inserire immagini
+
+\usepackage{fancyhdr} % per gestione intestazione e piè di pagina
+
+\hypersetup{ % metadati di titolo e autore nel PDF
+    pdftitle={Prova Finale di Ingegneria del Software - A.A. 2022/23},
+    pdfauthor={Gruppo AM34}
+}
+
+\setlength{\parindent}{0pt} % rimuove l'indentazione del testo
+
+\begin{document}
+    \pagestyle{fancy}
+    \fancyhead{}\fancyfoot{}
+    \fancyhead[L]{\textbf{Prova Finale di Ingegneria del Software - A.A. 2022/23}}
+    \fancyhead[R]{Gruppo AM34}
+    \fancyfoot[C]{\thepage}
+
+    \author{Andrea Caravano \and Biagio Cancelliere \and Alessandro Cavallo \and Allegra Chiavacci}
+    \title{\textbf{\Large{Prova Finale di Ingegneria del Software - A.A. 2022/23\\Peer-review n. 1}}}
+    \maketitle
+
+
+    \section{Lati positivi}\label{sec:lati-positivi}
+    \begin{itemize}
+        \item Ci sembrano ben pensate e ben suddivise tutte le possibili tipologie di controlli sulla gestione dei turni,
+        oltre che di inizio e fine gioco.
+
+        È anche ben curata l'allocazione di carte oggetto nel gioco e nella plancia, limitandole al numero massimo
+        effettivamente previsto per ogni tipo.
+        \item Ottima la suddivisione delle carte obiettivo comune, che differenziano gli algoritmi di controllo sulla base
+        del pattern previsto dalla carta.
+        \item Sono previsti nel controller tutti i metodi di notifica relativi all'andamento del gioco.
+    \end{itemize}
+
+
+    \section{Lati negativi}\label{sec:lati-negativi}
+    \begin{itemize}
+        \item Ci sembra limitante la scelta di utilizzare un ArrayList per rappresentare la plancia di gioco,
+        in quanto richiede di sfruttare stratagemmi come delle liste di indici per rintracciare gli spazi adiacenti.
+
+        Inoltre, risulterebbe difficoltoso trasporla graficamente all'utente.
+        \item Risulta di primaria importanza la suddivisione tra il tipo di una carta oggetto e la sua rappresentazione:
+        le carte sono distinte solo dal loro tipo e non è presente un attributo che ne indichi
+        la rappresentazione nel gioco (le tre possibili immagini per tipo di carta).
+
+        Oltretutto, la presenza di un tipo di carta \texttt{empty} aumenta la complessità.
+        \item Potrebbe essere confusionaria l'eccessiva distribuzione dei parametri di gioco all'interno del
+        modello, spesso richiamati attraverso molti metodi getter e setter (a volte sovrapposti tra entità differenti).
+    \end{itemize}
+
+
+    \section{Confronto tra le architetture}\label{sec:confronto-tra-le-architetture}
+    \begin{itemize}
+        \item Coerentemente con quanto visto a lezione, anche noi abbiamo scelto di raggruppare
+        ulteriormente gli algoritmi di controllo delle carte obiettivo comune, mantenendo l'uso
+        dello Strategy Pattern.
+        \item Per la descrizione del protocollo di comunicazione, anche noi stiamo pensando alle principali
+        categorie di messaggi scambiati tra client e server, per favorire l'interattività durante le fasi di gestione del gioco.
+    \end{itemize}
+\end{document}

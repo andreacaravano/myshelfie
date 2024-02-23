@@ -1,0 +1,519 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > Game</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">it.polimi.ingsw.Server.Model</a>
+</div>
+
+<h1>Coverage Summary for Class: Game (it.polimi.ingsw.Server.Model)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Game</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (22/22)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    96,4%
+  </span>
+  <span class="absValue">
+    (162/168)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package it.polimi.ingsw.Server.Model;
+&nbsp;
+&nbsp;import it.polimi.ingsw.Common.CommonGoalCardInterface;
+&nbsp;import it.polimi.ingsw.Common.PersonalGoalCardInterface;
+&nbsp;import it.polimi.ingsw.Common.ShelfInterface;
+&nbsp;
+&nbsp;import java.rmi.RemoteException;
+&nbsp;import java.util.*;
+&nbsp;import java.util.stream.Collectors;
+&nbsp;
+&nbsp;/**
+&nbsp; * This class contains general information about the current game, such as CommonGoalCards and number of Players.
+&nbsp; */
+&nbsp;public class Game {
+&nbsp;    /**
+&nbsp;     * final attribute, which indicates the maximum number of players who can join a game
+&nbsp;     */
+<b class="fc">&nbsp;    public final int MAX_PLAYERS = 4;</b>
+&nbsp;    /**
+&nbsp;     * Identifier is the game id. It is chosen by the first player, who joins the game, and it can be used by other players to
+&nbsp;     * join a pre-existing game
+&nbsp;     */
+&nbsp;    private final String identifier;
+&nbsp;    /**
+&nbsp;     * Map used to store Players, associated to an Integer key, which indicates their position in the game
+&nbsp;     */
+&nbsp;    private final Map&lt;Integer, Player&gt; players;
+&nbsp;    /**
+&nbsp;     * Number of players, chosen by the first player, when he/she creates a new game
+&nbsp;     */
+&nbsp;    private final int maxPlayers;
+&nbsp;    /**
+&nbsp;     * List of personalCards associated to each player
+&nbsp;     */
+&nbsp;    private final List&lt;PersonalGoalCard&gt; personalCards;
+&nbsp;    /**
+&nbsp;     * Game scoreboard
+&nbsp;     */
+<b class="fc">&nbsp;    private Scoreboard scoreboard = null;</b>
+&nbsp;    /**
+&nbsp;     * board used in the game
+&nbsp;     */
+&nbsp;    private Board board;
+&nbsp;    /**
+&nbsp;     * number of players who have already joined the game
+&nbsp;     */
+&nbsp;    private int playerCount;
+&nbsp;    /**
+&nbsp;     * It&#39;s the first CommonGoalCard drawn for the game
+&nbsp;     */
+&nbsp;    private CommonGoalCard cgCard1;
+&nbsp;    /**
+&nbsp;     * It&#39;s the second CommonGoalCard drawn for the game
+&nbsp;     */
+&nbsp;    private CommonGoalCard cgCard2;
+&nbsp;    /**
+&nbsp;     * Object Cards extracted in the related game
+&nbsp;     */
+&nbsp;    private List&lt;ObjectCard&gt; objectCards;
+&nbsp;    /**
+&nbsp;     * this attribute is true if a player has already filled his/her shelf, false otherwise
+&nbsp;     */
+<b class="fc">&nbsp;    private boolean gameEnded = false;</b>
+&nbsp;    /**
+&nbsp;     * this attribute is true if the game has started
+&nbsp;     */
+<b class="fc">&nbsp;    private boolean prepared = false;</b>
+&nbsp;
+&nbsp;    /**
+&nbsp;     * game constructor
+&nbsp;     *
+&nbsp;     * @param identifier ID of the game, chosen by the Player who creates the game
+&nbsp;     * @param maxPlayers maximum number of players, who can join the game (chosen by the first player)
+&nbsp;     * @throws Exception if the maximum number of players is higher than the MAX_PLAYERS number
+&nbsp;     */
+&nbsp;
+<b class="fc">&nbsp;    public Game(String identifier, int maxPlayers) throws Exception {</b>
+<b class="fc">&nbsp;        if (maxPlayers &gt; MAX_PLAYERS)</b>
+<b class="nc">&nbsp;            throw new Exception();</b>
+<b class="fc">&nbsp;        this.identifier = identifier;</b>
+<b class="fc">&nbsp;        this.maxPlayers = maxPlayers;</b>
+<b class="fc">&nbsp;        this.players = new HashMap&lt;&gt;();</b>
+<b class="fc">&nbsp;        this.objectCards = new ArrayList&lt;&gt;();</b>
+<b class="fc">&nbsp;        this.board = new Board(maxPlayers, objectCards);</b>
+<b class="fc">&nbsp;        this.personalCards = new ArrayList&lt;&gt;();</b>
+<b class="fc">&nbsp;        this.gameEnded = false;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Related to Game&#39;s refresh strategy
+&nbsp;     */
+<b class="fc">&nbsp;    public Game(String identifier, Map&lt;Integer, Player&gt; players, int maxPlayers, List&lt;PersonalGoalCard&gt; personalCards, Scoreboard scoreboard, Board board, int playerCount, CommonGoalCard cgCard1, CommonGoalCard cgCard2, List&lt;ObjectCard&gt; objectCards, boolean gameEnded, boolean prepared) {</b>
+<b class="fc">&nbsp;        this.identifier = identifier;</b>
+<b class="fc">&nbsp;        this.players = players;</b>
+<b class="fc">&nbsp;        this.maxPlayers = maxPlayers;</b>
+<b class="fc">&nbsp;        this.personalCards = personalCards;</b>
+<b class="fc">&nbsp;        this.scoreboard = scoreboard;</b>
+<b class="fc">&nbsp;        this.board = board;</b>
+<b class="fc">&nbsp;        this.playerCount = playerCount;</b>
+<b class="fc">&nbsp;        this.cgCard1 = cgCard1;</b>
+<b class="fc">&nbsp;        this.cgCard2 = cgCard2;</b>
+<b class="fc">&nbsp;        this.objectCards = objectCards;</b>
+<b class="fc">&nbsp;        this.gameEnded = gameEnded;</b>
+<b class="fc">&nbsp;        this.prepared = prepared;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Getter method for the board
+&nbsp;     *
+&nbsp;     * @return Board
+&nbsp;     */
+&nbsp;    public Board getBoard() {
+<b class="fc">&nbsp;        return board;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Getter method for the attribute, which indicates the maximum number of players, who can join the game
+&nbsp;     *
+&nbsp;     * @return maxPlayers
+&nbsp;     */
+&nbsp;    public int getMaxPlayers() {
+<b class="fc">&nbsp;        return maxPlayers;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Getter method for players. An integer is associated to each Player, who is playing the game
+&nbsp;     *
+&nbsp;     * @return a map of Players
+&nbsp;     */
+&nbsp;    public Map&lt;Integer, Player&gt; getPlayers() {
+<b class="fc">&nbsp;        return players;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * This method adds a new player to &quot;players&quot; Map.
+&nbsp;     *
+&nbsp;     * @param newNickname player&#39;s nickname
+&nbsp;     * @return Player who&#39;s been added to players
+&nbsp;     * @throws RemoteException if the new instance of class Player hasn&#39;t been created
+&nbsp;     */
+&nbsp;    public Player newPlayer(String newNickname) throws RemoteException {
+<b class="fc">&nbsp;        Player ret = new Player(newNickname);</b>
+<b class="fc">&nbsp;        players.put(playerCount++, ret);</b>
+<b class="fc">&nbsp;        return ret;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * getter method to recognize a player from nickname
+&nbsp;     *
+&nbsp;     * @param nickname player&#39;s nickname
+&nbsp;     * @return players if nickname != null, null otherwise
+&nbsp;     */
+&nbsp;    public Player getPlayerFromNickname(String nickname) {
+<b class="fc">&nbsp;        if (nickname != null &amp;&amp; players</b>
+<b class="fc">&nbsp;                .values()</b>
+<b class="fc">&nbsp;                .stream()</b>
+<b class="fc">&nbsp;                .anyMatch(p -&gt; p.getNickname().equals(nickname))) {</b>
+<b class="fc">&nbsp;            return players</b>
+<b class="fc">&nbsp;                    .values()</b>
+<b class="fc">&nbsp;                    .stream()</b>
+<b class="fc">&nbsp;                    .filter(p -&gt; p.getNickname().equals(nickname))</b>
+<b class="fc">&nbsp;                    .findFirst()</b>
+<b class="fc">&nbsp;                    .orElseThrow();</b>
+<b class="fc">&nbsp;        } else return null;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * this method is a getter for the shelf interface obtained from nickname
+&nbsp;     *
+&nbsp;     * @param nickname player&#39;s nickname
+&nbsp;     * @return player&#39;s shelf interface
+&nbsp;     */
+&nbsp;    public ShelfInterface getShelfInterfaceFromNickname(String nickname) {
+<b class="fc">&nbsp;        if (getPlayers()</b>
+<b class="fc">&nbsp;                .values()</b>
+<b class="fc">&nbsp;                .stream()</b>
+<b class="fc">&nbsp;                .map(Player::getNickname)</b>
+<b class="fc">&nbsp;                .toList()</b>
+<b class="fc">&nbsp;                .contains(nickname)) {</b>
+<b class="fc">&nbsp;            return getPlayers()</b>
+<b class="fc">&nbsp;                    .values()</b>
+<b class="fc">&nbsp;                    .stream()</b>
+<b class="fc">&nbsp;                    .filter(p -&gt; p.getNickname().equals(nickname))</b>
+<b class="fc">&nbsp;                    .map(Player::getShelf)</b>
+<b class="fc">&nbsp;                    .findFirst()</b>
+<b class="fc">&nbsp;                    .orElseThrow();</b>
+<b class="nc">&nbsp;        } else return null;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * this method is a getter of PersonalGoalCard obtained from nickname
+&nbsp;     *
+&nbsp;     * @param nickname player&#39;s nickname
+&nbsp;     * @return player&#39;s PersonalGoalCard
+&nbsp;     */
+&nbsp;    public PersonalGoalCardInterface getPersonalGoalCardInterfaceFromNickname(String nickname) {
+<b class="fc">&nbsp;        if (getPlayers()</b>
+<b class="fc">&nbsp;                .values()</b>
+<b class="fc">&nbsp;                .stream()</b>
+<b class="fc">&nbsp;                .map(Player::getNickname)</b>
+<b class="fc">&nbsp;                .toList()</b>
+<b class="fc">&nbsp;                .contains(nickname)) {</b>
+<b class="fc">&nbsp;            return getPlayers()</b>
+<b class="fc">&nbsp;                    .values()</b>
+<b class="fc">&nbsp;                    .stream()</b>
+<b class="fc">&nbsp;                    .filter(p -&gt; p.getNickname().equals(nickname))</b>
+<b class="fc">&nbsp;                    .map(Player::getPersonalGoalCard)</b>
+<b class="fc">&nbsp;                    .findFirst()</b>
+<b class="fc">&nbsp;                    .orElseThrow();</b>
+<b class="nc">&nbsp;        } else return null;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * this method is a getter for CommonGoalCards
+&nbsp;     *
+&nbsp;     * @return a list of CommonGoalCards
+&nbsp;     */
+&nbsp;    public List&lt;CommonGoalCardInterface&gt; getCommonGoalCards() {
+<b class="fc">&nbsp;        return Arrays.asList(cgCard1, cgCard2);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * this method is a getter for player&#39;s shelf obtained from nickname
+&nbsp;     *
+&nbsp;     * @param nickname player&#39;s nickname
+&nbsp;     * @return player&#39;s shelf
+&nbsp;     */
+&nbsp;    public Shelf getShelfFromNickname(String nickname) {
+<b class="fc">&nbsp;        if (getPlayers()</b>
+<b class="fc">&nbsp;                .values()</b>
+<b class="fc">&nbsp;                .stream()</b>
+<b class="fc">&nbsp;                .map(Player::getNickname)</b>
+<b class="fc">&nbsp;                .toList()</b>
+<b class="fc">&nbsp;                .contains(nickname)) {</b>
+<b class="fc">&nbsp;            return getPlayers()</b>
+<b class="fc">&nbsp;                    .values()</b>
+<b class="fc">&nbsp;                    .stream()</b>
+<b class="fc">&nbsp;                    .filter(p -&gt; p.getNickname().equals(nickname))</b>
+<b class="fc">&nbsp;                    .map(Player::getShelf)</b>
+<b class="fc">&nbsp;                    .findFirst()</b>
+<b class="fc">&nbsp;                    .orElseThrow();</b>
+<b class="nc">&nbsp;        } else return null;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * this method is a getter for ScoreCards obtained from Nickname
+&nbsp;     *
+&nbsp;     * @param nickname player&#39;s nickname
+&nbsp;     * @return a stack of player&#39;s ScoreCard
+&nbsp;     */
+&nbsp;    public Stack&lt;ScoreCard&gt; getScoreCardsFromNickname(String nickname) {
+<b class="fc">&nbsp;        if (getPlayers()</b>
+<b class="fc">&nbsp;                .values()</b>
+<b class="fc">&nbsp;                .stream()</b>
+<b class="fc">&nbsp;                .map(Player::getNickname)</b>
+<b class="fc">&nbsp;                .toList()</b>
+<b class="fc">&nbsp;                .contains(nickname)) {</b>
+<b class="fc">&nbsp;            return getPlayers()</b>
+<b class="fc">&nbsp;                    .values()</b>
+<b class="fc">&nbsp;                    .stream()</b>
+<b class="fc">&nbsp;                    .filter(p -&gt; p.getNickname().equals(nickname))</b>
+<b class="fc">&nbsp;                    .map(Player::getScoreCards)</b>
+<b class="fc">&nbsp;                    .findFirst()</b>
+<b class="fc">&nbsp;                    .orElseThrow();</b>
+<b class="nc">&nbsp;        } else return null;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * This method returns a list of nicknames of the players, who are playing a game (if game isn&#39;t null), null otherwise
+&nbsp;     *
+&nbsp;     * @return a list of player&#39;s nicknames
+&nbsp;     */
+&nbsp;    public List&lt;String&gt; nicknames() {
+<b class="fc">&nbsp;        return getPlayers()</b>
+<b class="fc">&nbsp;                .values()</b>
+<b class="fc">&nbsp;                .stream()</b>
+<b class="fc">&nbsp;                .map(Player::getNickname)</b>
+<b class="fc">&nbsp;                .toList();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * This method includes setup procedures, such as drawing personal goal cards and common goal cards,
+&nbsp;     * choosing randomly the first player and placing ObjectCards on the board.
+&nbsp;     *
+&nbsp;     * @throws Exception if the number of drawn personal goal cards has exceeded the limit
+&nbsp;     */
+&nbsp;    public void prepareGame() throws Exception {
+<b class="fc">&nbsp;        if (!prepared) {</b>
+<b class="fc">&nbsp;            if (personalCards.size() &gt; PersonalGoalCard.LIMIT)</b>
+<b class="nc">&nbsp;                throw new Exception();</b>
+&nbsp;
+<b class="fc">&nbsp;            Random r = new Random();</b>
+&nbsp;
+<b class="fc">&nbsp;            int cardType1 = -1;</b>
+<b class="fc">&nbsp;            int cardType2 = -1;</b>
+<b class="fc">&nbsp;            while (cardType1 == cardType2) {</b>
+<b class="fc">&nbsp;                cardType1 = r.nextInt(1, CommonGoalCard.LIMIT + 1);</b>
+<b class="fc">&nbsp;                cardType2 = r.nextInt(1, CommonGoalCard.LIMIT + 1);</b>
+&nbsp;            }
+<b class="fc">&nbsp;            cgCard1 = new CommonGoalCard(cardType1, maxPlayers);</b>
+<b class="fc">&nbsp;            cgCard2 = new CommonGoalCard(cardType2, maxPlayers);</b>
+&nbsp;
+<b class="fc">&nbsp;            for (Integer index : players.keySet()) {</b>
+&nbsp;                int personalType;
+&nbsp;                do {
+<b class="fc">&nbsp;                    personalType = r.nextInt(1, PersonalGoalCard.LIMIT + 1);</b>
+&nbsp;                }
+<b class="fc">&nbsp;                while (personalCards.stream().map(PersonalGoalCard::getType).toList().contains(personalType));</b>
+<b class="fc">&nbsp;                PersonalGoalCard pgc = new PersonalGoalCard(personalType);</b>
+<b class="fc">&nbsp;                personalCards.add(pgc);</b>
+<b class="fc">&nbsp;                new ArrayList&lt;&gt;(players.values()).get(index).setGameParameters(pgc, cgCard1, cgCard2, board);</b>
+<b class="fc">&nbsp;            }</b>
+&nbsp;
+<b class="fc">&nbsp;            List&lt;Player&gt; support = new ArrayList&lt;&gt;(players.values());</b>
+<b class="fc">&nbsp;            players.clear();</b>
+<b class="fc">&nbsp;            Collections.shuffle(support);</b>
+<b class="fc">&nbsp;            int counter = 0;</b>
+<b class="fc">&nbsp;            for (Player p : support) {</b>
+<b class="fc">&nbsp;                p.setPosition(counter);</b>
+<b class="fc">&nbsp;                players.put(counter++, p);</b>
+<b class="fc">&nbsp;            }</b>
+&nbsp;        }
+<b class="fc">&nbsp;        prepared = true;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * This method indicates if the game is prepared
+&nbsp;     *
+&nbsp;     * @return true if the game is prepared, false otherwise
+&nbsp;     */
+&nbsp;    public boolean isPrepared() {
+<b class="fc">&nbsp;        return prepared;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * This method checks if the active player has completely filled his/her shelf
+&nbsp;     *
+&nbsp;     * @param activePlayer represents the player who is playing in the current turn
+&nbsp;     * @return true if the player has filled all the spaces, false otherwise
+&nbsp;     * @throws Exception If the coordinates are invalid
+&nbsp;     */
+&nbsp;    public boolean checkEndGame(Player activePlayer) throws Exception {
+<b class="fc">&nbsp;        if (gameEnded) {</b>
+<b class="fc">&nbsp;            return true;</b>
+&nbsp;        }
+<b class="fc">&nbsp;        if (activePlayer.getShelf().isFull()) {</b>
+<b class="fc">&nbsp;            activePlayer.firstShelfFull();</b>
+<b class="fc">&nbsp;            this.gameEnded = true;</b>
+<b class="fc">&nbsp;            return true;</b>
+&nbsp;        }
+<b class="fc">&nbsp;        return false;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * This method is used for endgame procedures, such as final scoring.
+&nbsp;     *
+&nbsp;     * @return true if the game is completed, false otherwise
+&nbsp;     * @throws Exception if updateScore() throws an Exception
+&nbsp;     */
+&nbsp;    public boolean gameComplete() throws Exception {
+<b class="fc">&nbsp;        if (gameEnded &amp;&amp; players</b>
+<b class="fc">&nbsp;                .values()</b>
+<b class="fc">&nbsp;                .stream()</b>
+<b class="fc">&nbsp;                .filter(x -&gt; !x.isInGame())</b>
+<b class="fc">&nbsp;                .count() == playerCount) {</b>
+<b class="fc">&nbsp;            if (this.scoreboard == null) {</b>
+<b class="fc">&nbsp;                for (Player p : getPlayers().values()) {</b>
+<b class="fc">&nbsp;                    p.updateScore();</b>
+<b class="fc">&nbsp;                }</b>
+<b class="fc">&nbsp;                Map&lt;String, Integer&gt; unsortedPointMap = players.entrySet()</b>
+<b class="fc">&nbsp;                        .stream()</b>
+<b class="fc">&nbsp;                        .collect(Collectors.toMap(</b>
+<b class="fc">&nbsp;                                e -&gt; e.getValue().getNickname(),</b>
+<b class="fc">&nbsp;                                e -&gt; e.getValue().getScore()</b>
+&nbsp;                        ));
+<b class="fc">&nbsp;                this.scoreboard = new Scoreboard(unsortedPointMap);</b>
+&nbsp;            }
+<b class="fc">&nbsp;            return true;</b>
+<b class="fc">&nbsp;        } else return false;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * this method is a getter for attribute scoreboard
+&nbsp;     *
+&nbsp;     * @return scoreboard
+&nbsp;     */
+&nbsp;    public Scoreboard getScoreboard() {
+<b class="fc">&nbsp;        return scoreboard;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * this method is a getter for attribute gameEnded
+&nbsp;     *
+&nbsp;     * @return true if game has ended, false otherwise
+&nbsp;     */
+&nbsp;    public boolean isGameEnded() {
+<b class="fc">&nbsp;        return gameEnded;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * Objects refresh following a game reloaded from a persistency file
+&nbsp;     *
+&nbsp;     * @return the refreshed game
+&nbsp;     * @throws RemoteException Related to RMI
+&nbsp;     */
+&nbsp;    public Game refreshEntities() throws RemoteException {
+<b class="fc">&nbsp;        this.board = board.getCopy();</b>
+<b class="fc">&nbsp;        this.objectCards = board.getObjectCards();</b>
+<b class="fc">&nbsp;        this.cgCard1 = cgCard1.getCopy();</b>
+<b class="fc">&nbsp;        this.cgCard2 = cgCard2.getCopy();</b>
+<b class="fc">&nbsp;        for (Player p : players.values()) {</b>
+<b class="fc">&nbsp;            p.refreshEntities(cgCard1, cgCard2);</b>
+<b class="fc">&nbsp;        }</b>
+<b class="fc">&nbsp;        return new Game(this.identifier, this.players, this.maxPlayers, this.personalCards, this.scoreboard, this.board, this.playerCount, this.cgCard1, this.cgCard2, this.objectCards, this.gameEnded, this.prepared);</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2023-05-30 20:39</div>
+</div>
+</body>
+</html>
