@@ -1,0 +1,12 @@
+Jul 04, 2023 9:03:42 PM it.polimi.ingsw.Server.ServerManager writeInfo
+INFO: Your server is running Java 20.0.1 on Linux 5.4.0-153-generic, amd64 in /principale
+Jul 04, 2023 9:03:43 PM it.polimi.ingsw.Server.ServerManager writeInfo
+INFO: Socket Server correctly launched on 0.0.0.0/0.0.0.0:3435
+Jul 04, 2023 9:03:43 PM it.polimi.ingsw.Server.ServerManager writeInfo
+INFO: RMI Server correctly launched on localhost:3434
+Jul 04, 2023 9:22:56 PM it.polimi.ingsw.Server.ServerManager writeInfo
+INFO: Client: /1.2.3.4:50000 connected to the Server on Thread 22 using TCP Socket
+Jul 04, 2023 9:23:01 PM it.polimi.ingsw.Server.ServerManager writeInfo
+INFO: nick joined gioco game using Socket Client
+Jul 04, 2023 9:23:01 PM it.polimi.ingsw.Server.ServerManager writeWarning
+WARNING: Client /1.2.3.4:50000 didn't send a keep-alive at this round. Their connection might be laggy or unstable.
