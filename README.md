@@ -4,6 +4,12 @@ Andrea Caravano - Biagio Cancelliere - Alessandro Cavallo - Allegra Chiavacci
 
 ## Prova Finale (Progetto) di Ingegneria del Software - A.A. 2022/23
 
+Valutato positivamente: 30L/30L
+
+### Note di licenza e publicazione
+
+Vedi [file di licenza](LICENSE)
+
 ### Fasi dello sviluppo
 
 | Fase                                                                                                                       | Realizzazione |
